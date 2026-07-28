@@ -1,0 +1,32 @@
+/* กล่อง Popup */
+.maplibregl-popup-content {
+  padding: 12px 14px;
+  border-radius: 12px;
+
+  width: 180px;      /* กำหนดความกว้าง */
+  max-width: 220px;
+
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+
+  font-family: "Kanit", sans-serif;
+}
+
+/* ปุ่มกากบาท */
+.maplibregl-popup-close-button {
+  top: 6px;
+  right: 8px;
+
+  width: 24px;
+  height: 24px;
+
+  font-size: 18px;
+  color: #023e8a;
+
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+.maplibregl-popup-close-button:hover {
+  background: #e0f2fe;
+}
+

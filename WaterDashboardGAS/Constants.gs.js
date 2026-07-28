@@ -1,0 +1,9 @@
+const SHEET = {
+  MASTER: "MASTER_DATA",
+  CONFIG: "Config",
+  CK002: "CK002_DATA",
+  CK003: "CK003_DATA",
+  CK004: "CK004_DATA",
+  CK005: "CK005_DATA",
+  CK007: "CK007_DATA",
+};

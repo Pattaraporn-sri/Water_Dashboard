@@ -1,0 +1,192 @@
+import { useEffect, useRef, useState } from "react";
+import maplibregl from "maplibre-gl";
+import "maplibre-gl/dist/maplibre-gl.css";
+import type { WaterSource } from "../../types/Water";
+import "../Map/Map.css";
+import MapLayer from "../../assets/layers.png";
+
+interface MapViewProps {
+  data: WaterSource[];
+}
+const MapView = ({ data }: MapViewProps) => {
+  const mapContainer = useRef<HTMLDivElement | null>(null);
+  const mapRef = useRef<maplibregl.Map | null>(null);
+  const markersRef = useRef<maplibregl.Marker[]>([]);
+  const popupRef = useRef<maplibregl.Popup | null>(null);
+  const [showBasemapMenu, setShowBasemapMenu] = useState(false);
+  const [basemap, setBasemap] = useState<keyof typeof BASEMAPS>("Satellite");
+
+  const BASEMAPS = {
+    Satellite:
+      "https://api.maptiler.com/maps/hybrid/style.json?key=get_your_own_OpIi9ZULNHzrESv6T2vL",
+    Streets: "https://tiles.stadiamaps.com/styles/alidade_bright.json",
+  };
+
+  const fitToMarkers = (map: maplibregl.Map, data: WaterSource[]) => {
+    if (data.length === 0) return;
+
+    const bounds = new maplibregl.LngLatBounds();
+
+    data.forEach((item) => {
+      bounds.extend([item.lng, item.lat]);
+    });
+
+    map.fitBounds(bounds, {
+      padding: 80,
+      maxZoom: 15,
+    });
+  };
+
+  const changeBasemap = (type: keyof typeof BASEMAPS) => {
+    if (!mapRef.current) return;
+
+    mapRef.current.setStyle(BASEMAPS[type]);
+
+    setBasemap(type);
+  };
+
+  useEffect(() => {
+    if (!mapContainer.current || mapRef.current) return;
+
+    const map = new maplibregl.Map({
+      container: mapContainer.current,
+
+      style:
+        "https://api.maptiler.com/maps/hybrid/style.json?key=get_your_own_OpIi9ZULNHzrESv6T2vL",
+
+      // ขอนแก่น
+      center: [102.839, 16.441],
+
+      zoom: 11,
+    });
+
+    // ปุ่ม Zoom In / Zoom Out
+    map.addControl(new maplibregl.NavigationControl(), "top-right");
+
+    // ปุ่ม Fullscreen
+    map.addControl(new maplibregl.FullscreenControl(), "top-right");
+
+    mapRef.current = map;
+
+    return () => {
+      map.remove();
+      mapRef.current = null;
+    };
+  }, []);
+
+  // สร้าง Marker
+  useEffect(() => {
+    if (!mapRef.current) return;
+
+    const map = mapRef.current;
+
+    //ลบ Marker เก่าออก
+    markersRef.current.forEach((marker) => marker.remove());
+    markersRef.current = [];
+
+    data.forEach((item) => {
+      const popup = new maplibregl.Popup({
+        offset: 25,
+        closeButton: true,
+        closeOnClick: true,
+      }).setHTML(`
+        <div style="font-family: Kanit; min-width: 180px;">
+            <h3 style="margin:0 0 8px; font-size:16px; font-weight: 600; color:#0077b6">
+            ${item.name}
+            </h3>
+
+            <div style="font-size:12px; line-height:1.8;">
+                <div> ประเภท : ${item.type}</div>
+                <div> ปริมาณ : ${item.volume.toLocaleString()} ลบ.ม.</div>
+                <div> จังหวัด : ${item.province}</div>
+                <div> อำเภอ : ${item.district}</div>
+                <div> ตำบล: ${item.subdistrict}</div>
+            </div>
+        </div>
+        `);
+
+      const marker = new maplibregl.Marker({
+        color: "#0077b6",
+      })
+        .setLngLat([item.lng, item.lat])
+        .setPopup(popup)
+        .addTo(map);
+
+      marker.getElement().addEventListener("click", () => {
+        if (popupRef.current && popupRef.current !== popup) {
+          popupRef.current.remove();
+        }
+
+        popupRef.current = popup;
+      });
+    });
+
+    if (map.isStyleLoaded()) {
+      fitToMarkers(map, data);
+    }
+  }, [data]);
+
+  return (
+    <div className="relative">
+      <div
+        className="absolute top-[10px] left-3 z-20"
+      >
+        {/* ปุ่ม Layer */}
+        <button
+          onClick={() => setShowBasemapMenu(!showBasemapMenu)}
+          className="bg-white
+            p-2
+            rounded-lg
+            shadow-lg
+          hover:bg-gray-100
+            transition"
+        >
+          <img src={MapLayer} className="w-6 h-6" />
+        </button>
+
+        {/* popup */}
+        {showBasemapMenu && (
+          <div
+            className="
+              absolute
+              left-12
+              top-0
+            bg-white
+              rounded-lg
+              p-4
+              w-32"
+          >
+            <label className="flex items-center gap-2 mb-2 cursor-pointer text-sm">
+              <input
+                type="radio"
+                name="basemap"
+                value="Satellite"
+                checked={basemap === "Satellite"}
+                onChange={() => changeBasemap("Satellite")}
+              />
+              <span>ดาวเทียม</span>
+            </label>
+
+            <label className="flex items-center gap-2 cursor-pointer text-sm">
+              <input
+                type="radio"
+                name="basemap"
+                value="Streets"
+                checked={basemap === "Streets"}
+                onChange={() => changeBasemap("Streets")}
+              />
+              <span>ถนน</span>
+            </label>
+          </div>
+        )}
+      </div>
+
+      <div
+        ref={mapContainer}
+        className="h-[480px] w-[930px] rounded-xl overflow-hidden"
+      />
+    </div>
+  );
+};
+
+export default MapView;
