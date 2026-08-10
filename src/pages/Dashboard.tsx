@@ -1,9 +1,13 @@
+import { useEffect, useState } from "react";
 import FilterBar from "../components/FilterBar/FilterBar";
 import Header from "../components/Header/Header";
 import KPISection from "../components/KPI/KPISection";
 import SummaryTable from "../components/Table/SummaryTable";
-import MapView from "../components/Map/MapView";
-import Loader from "../components/Loader/Loader";
+import type { SelectedFilter } from "../types/Filter";
+import type { WaterSource } from "../types/Water";
+import { getWaterData } from "../services/water";
+import { getKPIData } from "../services/kpi";
+import { Spin } from "antd";
 
 export const tableColumns = [
   "ลำดับ",
@@ -18,77 +22,75 @@ export const tableColumns = [
   "ปริมาตร",
 ];
 
-export const tableRows = [
-  [
-    "1",
-    "ห้วย",
-    "ลำห้วย/คลอง/ลำประโดง/ลำธาร/แม่น้ำ/เหมืองดิน",
-    "ขอนแก่น",
-    "เมือง",
-    "บ้านเป็ด",
-    50,
-    45,
-    6,
-    500,
-  ],
-  [
-    "2",
-    "ห้วย",
-    "ลำห้วย/คลอง/ลำประโดง/ลำธาร/แม่น้ำ/เหมืองดิน",
-    "ขอนแก่น",
-    "เมือง",
-    "บ้านเป็ด",
-    50,
-    45,
-    6,
-    500,
-  ],
-  [
-    "3",
-    "ห้วย",
-    "ลำห้วย/คลอง/ลำประโดง/ลำธาร/แม่น้ำ/เหมืองดิน",
-    "ขอนแก่น",
-    "เมือง",
-    "บ้านเป็ด",
-    50,
-    45,
-    6,
-    500,
-  ],
-  [
-    "4",
-    "ห้วย",
-    "ลำห้วย/คลอง/ลำประโดง/ลำธาร/แม่น้ำ/เหมืองดิน",
-    "ขอนแก่น",
-    "เมือง",
-    "บ้านเป็ด",
-    50,
-    45,
-    6,
-    500,
-  ],
-  [
-    "5",
-    "ห้วย",
-    "ลำห้วย/คลอง/ลำประโดง/ลำธาร/แม่น้ำ/เหมืองดิน",
-    "ขอนแก่น",
-    "เมือง",
-    "บ้านเป็ด",
-    50,
-    45,
-    6,
-    500,
-  ],
-];
-
 function Dashboard() {
+  const [filter, setFilter] = useState<SelectedFilter>({
+    province: "",
+    district: "",
+    subdistrict: "",
+    type: "",
+  });
+
+  const [waterData, setWaterData] = useState<WaterSource[]>([]);
+  const [selectedWater, setSelectedWater] = useState<WaterSource | null>(null);
+
+  const [kpi, setKpi] = useState<{
+    totalWaterSource: number;
+    totalStorage: number;
+    storageByType: Record<string, number>;
+    countByType: Record<string, number>;
+    utilization: Record<string, number>;
+    problemSummary: Record<string, number>;
+  }>({
+    totalWaterSource: 0,
+    totalStorage: 0,
+    storageByType: {},
+    countByType: {},
+    utilization: {},
+    problemSummary: {},
+  });
+
+  useEffect(() => {
+    getWaterData(filter).then((data) => {
+      // console.log("WATER DATA =", data);
+      console.log("FILTER =", filter);
+
+      setWaterData(data);
+    });
+
+    getKPIData(filter).then((data) => {
+      // console.log("KPI API =", data);
+
+      setKpi({
+        ...data,
+        utilization: data.utilization || {},
+      });
+    });
+  }, [filter]);
+
+  //แสดงรูปแรกของแหล่งน้ำที่เลือก
+  useEffect(() => {
+    if (waterData.length > 0) {
+      setSelectedWater(waterData[0]);
+    } else {
+      setSelectedWater(null);
+    }
+  }, [waterData]);
+
+  useEffect(() => {
+    console.log("SELECTED WATER UPDATE =", selectedWater);
+  }, [selectedWater]);
+
   return (
-    <div className="bg-slate-100">
-      {/* <Loader /> */}
+    <div className="bg-slate-100 w-full min-w-0 font-kanit overflow-x-hidden">
       <Header />
-      <FilterBar />
-      <KPISection />
-      <SummaryTable columns={tableColumns} rows={tableRows} />
+      <FilterBar onFilterChange={setFilter} />
+      <KPISection
+        waterData={waterData}
+        kpi={kpi}
+        selectedWater={selectedWater}
+        setSelectedWater={setSelectedWater}
+      />
+      <SummaryTable columns={tableColumns} waterData={waterData} />
     </div>
   );
 }

@@ -2,113 +2,187 @@ import Chart from "../Charts/ChartCard";
 import DoughnutChart from "../Charts/DoughnutChart";
 import HorizontalBarChart from "../Charts/HorizontalBarChart";
 import MapView from "../Map/MapView";
-import { mapData } from "../../mocks/MapMock";
+import type { WaterSource } from "../../types/Water";
+import { useEffect } from "react";
+import PhotoViewer from "../PhotoViewer/PhotoViewer";
 
-function KPISection() {
+interface KPISectionProps {
+  waterData: WaterSource[];
+  kpi: {
+    utilization: {
+      [key: string]: number;
+    };
+    totalWaterSource: number;
+    totalStorage: number;
+    storageByType: {
+      [key: string]: number;
+    };
+    countByType: {
+      [key: string]: number;
+    };
+    problemSummary: {
+      [key: string]: number;
+    };
+  };
+  selectedWater: WaterSource | null;
+  setSelectedWater: (water: WaterSource) => void;
+}
+
+function KPISection({
+  waterData,
+  kpi,
+  selectedWater,
+  setSelectedWater,
+}: KPISectionProps) {
+  // ปริมาณกักเก็บน้ำแยกตามประเภทแหล่งน้ำ
+  const storageByType = waterData.reduce(
+    (acc, item) => {
+      const type = item.type || "ไม่ระบุ";
+
+      acc[type] = (acc[type] || 0) + (Number(item.volume) || 0);
+
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
+
+  const countByType = waterData.reduce(
+    (acc, item) => {
+      const type = item.type || "ไม่ระบุ";
+
+      acc[type] = (acc[type] || 0) + 1;
+
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
+
+  const storageLabels = Object.keys(storageByType);
+  const storageValues = Object.values(storageByType);
+
+  // ลักษณะการใช้ประโยชน์
+  const labels = Object.keys(kpi.utilization || {});
+  const values = Object.values(kpi.utilization || {});
+
+  // ปัญหาด้านน้ำ CK002
+  const problemLabels = Object.keys(kpi.problemSummary || {});
+  const problemValues = Object.values(kpi.problemSummary || {});
+
+  useEffect(() => {
+    // console.log("water Data:", waterData);
+    // console.log("KPI Data:", kpi);
+  }, [waterData, kpi]);
+
   return (
-    <div className="font-kanit">
-      <div className="flex flex-col items-end mr-5 ">
-        <div className="flex">
-          {/* KPI */}
-          <div className="bg-gradient-to-br from-[#0077b6] to-[#023e8a] w-[265px] h-24 flex items-center justify-center flex-col text-white text-base rounded-xl shadow-lg font-bold">
-            <span className="text-base">จำนวนแหล่งน้ำทั้งหมด (แห่ง)</span>
-            <p className="text-2xl">294</p>
-          </div>
-          {/* KPI */}
-          <div className="bg-gradient-to-br from-[#00b4d8] to-[#0077b6] w-[265px] h-24 flex items-center justify-center flex-col text-white text-base ml-2 rounded-xl shadow-lg font-bold">
-            <span className="text-base">ปริมาณการเก็บกักน้ำรวม (ลบ.ม.)</span>
-            <p className="text-2xl">1,234</p>
-          </div>
+    <div className="font-kanit px-3 sm:px-5 w-full max-w-full overflow-x-hidden">
+      {/* ================= TOP SECTION ================= */}
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.75fr)]">
+        {/* Map */}
+        <div className="rounded-xl shadow-lg overflow-hidden h-[320px] sm:h-[420px] lg:h-[520px] w-full max-w-full">
+          <MapView data={waterData} onMarkerClick={setSelectedWater} />
         </div>
-        <div className="bg-white w-[535px] h-80 flex pt-5 pl-5 flex-col ml-5 mt-5 text-white rounded-xl shadow-lg">
-          <span className="text-base text-[#023e8a]">
-            ภาพถ่ายแหล่งน้ำ (นำเสนอทีละภาพ)
-          </span>
-          <hr className="w-[340px] border-t border-[#023e8a] my-2" />
+
+        {/* Right side */}
+        <div className="flex flex-col gap-5 w-full min-w-0">
+          {/* KPI */}
+          <div className="flex flex-col gap-2 sm:flex-row w-full">
+            <div
+              className="bg-gradient-to-br from-[#0077b6] to-[#023e8a]
+              w-full sm:flex-1 lg:w-[350px] h-28 flex items-center justify-center flex-col
+              text-white rounded-xl shadow-lg font-bold"
+            >
+              <span className="text-xl">จำนวนแหล่งน้ำทั้งหมด (แห่ง)</span>
+
+              <p className="text-2xl">{waterData.length.toLocaleString()}</p>
+            </div>
+
+            <div
+              className="bg-gradient-to-br from-[#00b4d8] to-[#0077b6]
+              w-full sm:flex-1 lg:w-[350px] h-28 flex items-center justify-center flex-col
+              text-white rounded-xl shadow-lg font-bold"
+            >
+              <span className="text-xl">ปริมาณการเก็บกักน้ำรวม (ลบ.ม.)</span>
+
+              <p className="text-2xl">
+                {Object.values(storageByType)
+                  .reduce((sum, value) => sum + value, 0)
+                  .toLocaleString()}
+              </p>
+            </div>
+          </div>
+
+          {/* รูปภาพ */}
+          <div
+            className="bg-white w-full min-h-[320px] md:h-[390px]
+            p-5 flex flex-col
+            text-[#023e8a] rounded-xl shadow-lg"
+          >
+            <span className="text-xl font-bold">
+              📸 ภาพถ่ายแหล่งน้ำ (นำเสนอทีละภาพ)
+            </span>
+
+            <PhotoViewer
+              selectedWater={selectedWater}
+              waterData={waterData}
+              setSelectedWater={setSelectedWater}
+            />
+          </div>
         </div>
       </div>
 
-      <div className="ml-5 mr-5 absolute -mt-[435px] shadow-lg">
-        <MapView data={mapData} />
-      </div>
-
-      <div className="flex">
-        <div className="bg-white w-[930px] h-[330px] p-5 flex-col text-[#023e8a] rounded-xl shadow-lg ml-5 mt-16">
+      {/* ================= CHART ROW 1 ================= */}
+      <div className="grid grid-cols-1 gap-5 mt-5 xl:grid-cols-[minmax(0,1.3fr)_minmax(320px,0.7fr)]">
+        {/* ปริมาณกักเก็บน้ำ */}
+        <div
+          className="bg-white w-full h-[320px] sm:h-[350px]
+          p-5 text-[#023e8a] rounded-xl shadow-lg"
+        >
           <Chart
             title="💧 ปริมาณกักเก็บน้ำแยกตามประเภทแหล่งน้ำ (ลบ.ม.)"
             subtitle=""
           >
-            <HorizontalBarChart
-              labels={[
-                "ลำห้วย/คลอง/ลำประโดง/ลำธาร/แม่น้ำ/เหมืองดิน",
-                "บ่อน้ำตื้น/บ่อตอก/บ่อวง",
-                "บ่อบาดาล/บ่อโยก",
-                "หนอง/บึง/กุด",
-                "อ่างเก็บน้ำ",
-                "เขื่อน",
-                "อาคารชลศาสตร์",
-                "สระน้ำ/บ่อน้ำ/แก้มลิง (มนุษย์สร้าง)",
-                "พรุ/ทะเลสาบ/บ่อน้ำ",
-                "ระบบประปาหมู่บ้าน",
-              ]}
-              values={[
-                10000, 25004, 25000, 48000, 14000, 78500, 25444, 15200, 145602,
-                452100,
-              ]}
-            ></HorizontalBarChart>
+            <HorizontalBarChart labels={storageLabels} values={storageValues} />
           </Chart>
         </div>
 
-        <div className="bg-white w-[535px] h-[350px] pl-5 pt-5 m-5 ml-auto rounded-xl shadow-lg text-[#023e8a]">
-          <Chart title="🌊 สัดส่วนประเภทแหล่งน้ำ" subtitle="">
+        {/* สัดส่วนประเภทแหล่งน้ำ */}
+        <div
+          className="bg-white w-full min-w-0 h-[320px] sm:h-[350px]
+          p-5 rounded-xl shadow-lg text-[#023e8a]"
+        >
+          <Chart title="🌊 สัดส่วนประเภทแหล่งน้ำตามประเภท" subtitle="">
             <DoughnutChart
-              label={[
-                "หนอง/บึง/กุด",
-                "สระน้ำ/บ่อน้ำ/แก้มลิง (มนุษย์สร้าง)",
-                "บ่อบาดาล/บ่อโยก",
-                "ลำห้วย/คลอง/ลำประโดง",
-                "พรุ/ทะเลสาบ/บ่อน้ำ",
-                "ระบบประปาหมู่บ้าน",
-                "อาคารชลศาสตร์",
-                "อ่างเก็บน้ำ",
-                "บ่อตอก/บ่อตื้น/บ่อวง",
-                "เขื่อน",
-              ]}
-              values={[50, 20, 10, 5, 45, 18, 2, 23, 16, 8]}
+              label={Object.keys(countByType)}
+              values={Object.values(countByType)}
             />
           </Chart>
         </div>
       </div>
 
-      <div className="flex justify-between">
-        <div className="bg-white w-[535px] h-[350px] pl-5 pt-5 mr-5 mb-5 ml-auto -mt-[10px] rounded-xl shadow-lg text-[#023e8a]">
-          <Chart title="🎯 การใช้ประโยชน์แหล่งน้ำ" subtitle="">
-            <DoughnutChart
-              label={[
-                "การเกษตร",
-                "การเกษตร และอุปโภค บริโภค",
-                "อุปโภค บริโภค",
-                "ไม่ได้ใช้ประโยชน์",
-                "ไม่ระบุ",
-              ]}
-              values={[50, 20, 10, 5, 45]}
-            />
-          </Chart>
-        </div>
-      </div>
-
-      <div className="flex justify-between">
-        <div className="bg-white w-[930px] h-[330px] pt-5 pl-5 text-[#023e8a] rounded-xl shadow-lg mr-5 ml-5 -mt-[345px]">
+      {/* ================= CHART ROW 2 ================= */}
+      <div className="grid grid-cols-1 gap-5 mt-5 xl:grid-cols-[minmax(0,1.3fr)_minmax(320px,0.7fr)]">
+        {/* ปัญหาด้านน้ำ */}
+        <div
+          className="bg-white w-full h-[320px] sm:h-[350px]
+          p-5 text-[#023e8a]
+          rounded-xl shadow-lg"
+        >
           <Chart title="🚨 ปัญหาด้านน้ำในพื้นที่" subtitle="">
             <HorizontalBarChart
-              labels={[
-                "น้ำท่วม",
-                "น้ำเพื่อการผลิต",
-                "น้ำอุปโภค บริโภค",
-                "น้ำเสีย",
-              ]}
-              values={[5, 10, 4, 3]}
+              labels={problemLabels}
+              values={problemValues}
+              chartType="problem"
             />
+          </Chart>
+        </div>
+
+        {/* การใช้ประโยชน์ */}
+        <div
+          className="bg-white w-full min-w-0 h-[320px] sm:h-[350px]
+          p-5 rounded-xl shadow-lg text-[#023e8a]"
+        >
+          <Chart title="🎯 การใช้ประโยชน์แหล่งน้ำ" subtitle="">
+            <DoughnutChart label={labels} values={values} />
           </Chart>
         </div>
       </div>

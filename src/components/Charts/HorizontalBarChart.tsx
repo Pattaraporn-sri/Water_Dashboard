@@ -26,38 +26,57 @@ interface HorizontalBarChartProps {
   values: number[];
   showLegend?: boolean;
   showDataLabels?: boolean;
+
+  // เพิ่ม
+  chartType?: "problem" | "default";
 }
 
-const colors = [
+const defaultColors = [
   "#023e8a",
   "#0077b6",
   "#0096c7",
   "#00b4d8",
-  "#48cae4",
-  "#90e0ef",
   "#e9d8a6",
   "#ee9b00",
   "#ca6702",
   "#bb3e03",
+
 ];
+
+// สีเฉพาะ CK002
+const problemColors: Record<string, string> = {
+  น้ำอุปโภคบริโภค: "#0000FF", // ฟ้า
+
+  น้ำเพื่อการผลิต: "#228B22", // เขียว
+
+  น้ำท่วม: "#FE0000", // แดง
+
+  น้ำเสีย: "#FFD700", // เหลือง
+};
 
 const HorizontalBarChart = ({
   labels,
   values,
   showLegend = false,
   showDataLabels = true,
+  chartType = "default",
 }: HorizontalBarChartProps) => {
+  const backgroundColors =
+    chartType === "problem"
+      ? labels.map((label) => problemColors[label] || "#94a3b8")
+      : values.map((_, index) => defaultColors[index % defaultColors.length]);
+
   const data = {
     labels,
+
     datasets: [
       {
         data: values,
 
-        backgroundColor: values.map(
-          (_, index) => colors[index % colors.length],
-        ),
+        backgroundColor: backgroundColors,
 
         borderRadius: 0,
+
         borderSkipped: true,
       },
     ],
@@ -65,6 +84,7 @@ const HorizontalBarChart = ({
 
   const options = {
     responsive: true,
+
     maintainAspectRatio: false,
 
     indexAxis: "y" as const,
@@ -82,13 +102,16 @@ const HorizontalBarChart = ({
         display: showDataLabels,
 
         anchor: "end" as const,
+
         align: "right" as const,
 
         color: "#023e8a",
 
         font: {
           family: "Kanit",
+
           size: 10,
+
           weight: "bold" as const,
         },
 
@@ -105,6 +128,7 @@ const HorizontalBarChart = ({
 
           font: {
             family: "Kanit",
+
             size: 10,
           },
         },
@@ -120,6 +144,7 @@ const HorizontalBarChart = ({
 
           font: {
             family: "Kanit",
+
             size: 12,
           },
         },

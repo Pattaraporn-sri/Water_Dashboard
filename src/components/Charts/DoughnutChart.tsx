@@ -16,12 +16,11 @@ const colors = [
   "#0077b6",
   "#0096c7",
   "#00b4d8",
-  "#48cae4",
-  "#90e0ef",
   "#e9d8a6",
   "#ee9b00",
   "#ca6702",
   "#bb3e03",
+  "#ae2012",
 ];
 
 const DoughnutChart = ({
@@ -76,13 +75,13 @@ const DoughnutChart = ({
     <div className="flex items-center gap-3">
       <div className="h-[200px] w-[200px] mt-5">
         <Doughnut data={data} options={options} />
-      </div> 
+      </div>
 
       <div className="ml-5">
         {label.map((item, index) => (
           <div key={item} className="flex items-center gap-2 ml-2">
             <span
-              className="h-3 w-7"
+              className="h-3 w-10 rounded-full"
               style={{ backgroundColor: colors[index] }}
             />
             <span className="text-sm ml-2">{item}</span>

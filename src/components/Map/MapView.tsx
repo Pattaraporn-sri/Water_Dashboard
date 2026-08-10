@@ -4,11 +4,15 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import type { WaterSource } from "../../types/Water";
 import "../Map/Map.css";
 import MapLayer from "../../assets/layers.png";
+// import type { TambonGeoJSON } from "../../types/GeoJSON";
+import tambonBoundaryUrl from "../../assets/tambon_boundary.geojson?url";
 
 interface MapViewProps {
   data: WaterSource[];
+  onMarkerClick?: (item: WaterSource) => void;
 }
-const MapView = ({ data }: MapViewProps) => {
+
+const MapView = ({ data, onMarkerClick }: MapViewProps) => {
   const mapContainer = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const markersRef = useRef<maplibregl.Marker[]>([]);
@@ -27,14 +31,21 @@ const MapView = ({ data }: MapViewProps) => {
 
     const bounds = new maplibregl.LngLatBounds();
 
+    let hasMarker = false;
+
     data.forEach((item) => {
+      if (item.lat == null || item.lng == null) return;
+
       bounds.extend([item.lng, item.lat]);
+      hasMarker = true;
     });
 
-    map.fitBounds(bounds, {
-      padding: 80,
-      maxZoom: 15,
-    });
+    if (hasMarker) {
+      map.fitBounds(bounds, {
+        padding: 80,
+        maxZoom: 15,
+      });
+    }
   };
 
   const changeBasemap = (type: keyof typeof BASEMAPS) => {
@@ -68,9 +79,56 @@ const MapView = ({ data }: MapViewProps) => {
 
     mapRef.current = map;
 
+    map.on("load", () => {
+      map.addSource("tambon-boundary", {
+        type: "geojson",
+        data: tambonBoundaryUrl,
+      });
+
+      map.addLayer({
+        id: "tambon-fill",
+        type: "fill",
+        source: "tambon-boundary",
+        paint: {
+          "fill-color": "#E60026",
+          "fill-opacity": 0.1,
+        },
+      });
+
+      map.addLayer({
+        id: "tambon-outline",
+        type: "line",
+        source: "tambon-boundary",
+        paint: {
+          "line-color": "#FF2400",
+          "line-width": 3,
+        },
+      });
+    });
+
     return () => {
       map.remove();
       mapRef.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    const map = mapRef.current;
+
+    if (!map) return;
+
+    const handleResize = () => {
+      requestAnimationFrame(() => {
+        map.resize();
+      });
+    };
+
+    handleResize();
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
     };
   }, []);
 
@@ -85,17 +143,19 @@ const MapView = ({ data }: MapViewProps) => {
     markersRef.current = [];
 
     data.forEach((item) => {
+      if (item.lat == null || item.lng == null) return;
+
       const popup = new maplibregl.Popup({
         offset: 25,
         closeButton: true,
         closeOnClick: true,
       }).setHTML(`
         <div style="font-family: Kanit; min-width: 180px;">
-            <h3 style="margin:0 0 8px; font-size:16px; font-weight: 600; color:#0077b6">
+            <h3 style="margin:0 0 8px; font-size:16px; font-weight: 600; color:#0077b6; line-height: 1.4;">
             ${item.name}
             </h3>
 
-            <div style="font-size:12px; line-height:1.8;">
+            <div style="font-size:12px; line-height:1.8; ">
                 <div> ประเภท : ${item.type}</div>
                 <div> ปริมาณ : ${item.volume.toLocaleString()} ลบ.ม.</div>
                 <div> จังหวัด : ${item.province}</div>
@@ -112,12 +172,16 @@ const MapView = ({ data }: MapViewProps) => {
         .setPopup(popup)
         .addTo(map);
 
+      markersRef.current.push(marker);
+
       marker.getElement().addEventListener("click", () => {
         if (popupRef.current && popupRef.current !== popup) {
           popupRef.current.remove();
         }
 
         popupRef.current = popup;
+
+        onMarkerClick?.(item);
       });
     });
 
@@ -127,10 +191,8 @@ const MapView = ({ data }: MapViewProps) => {
   }, [data]);
 
   return (
-    <div className="relative">
-      <div
-        className="absolute top-[10px] left-3 z-20"
-      >
+    <div className="relative w-full h-full min-w-0">
+      <div className="absolute top-[10px] left-3 z-20">
         {/* ปุ่ม Layer */}
         <button
           onClick={() => setShowBasemapMenu(!showBasemapMenu)}
@@ -183,7 +245,7 @@ const MapView = ({ data }: MapViewProps) => {
 
       <div
         ref={mapContainer}
-        className="h-[480px] w-[930px] rounded-xl overflow-hidden"
+        className="w-full h-full min-w-0 rounded-xl overflow-hidden"
       />
     </div>
   );
