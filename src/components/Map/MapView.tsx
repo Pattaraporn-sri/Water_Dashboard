@@ -19,10 +19,11 @@ const MapView = ({ data, onMarkerClick }: MapViewProps) => {
   const popupRef = useRef<maplibregl.Popup | null>(null);
   const [showBasemapMenu, setShowBasemapMenu] = useState(false);
   const [basemap, setBasemap] = useState<keyof typeof BASEMAPS>("Satellite");
+  const MAPTILER_KEY = import.meta.env.VITE_MAPTILER_KEY;
 
   const BASEMAPS = {
-    Satellite:
-      "https://api.maptiler.com/maps/hybrid/style.json?key=get_your_own_OpIi9ZULNHzrESv6T2vL",
+    Satellite: `https://api.maptiler.com/maps/hybrid/style.json?key=${MAPTILER_KEY}`,
+
     Streets: "https://tiles.stadiamaps.com/styles/alidade_bright.json",
   };
 
