@@ -26,7 +26,6 @@ const colors = [
 const DoughnutChart = ({
   label,
   values,
-  showLegend = true,
   showDataLabels = true,
 }: DoughnutChartProps) => {
   const data = {

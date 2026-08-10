@@ -7,7 +7,6 @@ import type { SelectedFilter } from "../types/Filter";
 import type { WaterSource } from "../types/Water";
 import { getWaterData } from "../services/water";
 import { getKPIData } from "../services/kpi";
-import { Spin } from "antd";
 
 export const tableColumns = [
   "ลำดับ",
