@@ -63,8 +63,7 @@ const MapView = ({ data, onMarkerClick }: MapViewProps) => {
     const map = new maplibregl.Map({
       container: mapContainer.current,
 
-      style:
-        "https://api.maptiler.com/maps/hybrid/style.json?key=get_your_own_OpIi9ZULNHzrESv6T2vL",
+      style: BASEMAPS.Satellite,
 
       // ขอนแก่น
       center: [102.839, 16.441],
