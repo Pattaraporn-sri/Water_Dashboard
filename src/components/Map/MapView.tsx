@@ -24,7 +24,7 @@ const MapView = ({ data, onMarkerClick }: MapViewProps) => {
   const BASEMAPS = {
     Satellite: `https://api.maptiler.com/maps/hybrid/style.json?key=${MAPTILER_KEY}`,
 
-    Streets: "https://tiles.stadiamaps.com/styles/alidade_bright.json",
+    Streets: `https://api.maptiler.com/maps/streets-v2/style.json?key=${MAPTILER_KEY}`,
   };
 
   const fitToMarkers = (map: maplibregl.Map, data: WaterSource[]) => {
@@ -79,7 +79,9 @@ const MapView = ({ data, onMarkerClick }: MapViewProps) => {
 
     mapRef.current = map;
 
-    map.on("load", () => {
+    const addBoundaryLayers = (map: maplibregl.Map) => {
+      if (map.getSource("tambon-boundary")) return; // กันซ้ำ
+
       map.addSource("tambon-boundary", {
         type: "geojson",
         data: tambonBoundaryUrl,
@@ -104,6 +106,11 @@ const MapView = ({ data, onMarkerClick }: MapViewProps) => {
           "line-width": 3,
         },
       });
+    };
+
+    //เพื่อเรียกฟังก์ชันทุกครั้งที่ style โหลดเสร็จ
+    map.on("style.load", () => {
+      addBoundaryLayers(map);
     });
 
     return () => {
