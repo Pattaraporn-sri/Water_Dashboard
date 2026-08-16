@@ -86,11 +86,7 @@ function KPISection({
         <div className="flex flex-col gap-5 w-full min-w-0">
           {/* KPI */}
           <div className="flex flex-col gap-2 sm:flex-row w-full">
-            <div
-              className="bg-gradient-to-br from-[#0077b6] to-[#023e8a]
-    flex-1 min-w-0 h-28 flex items-center justify-center flex-col
-    text-white rounded-xl shadow-lg font-bold px-2 text-center"
-            >
+            <div className="bg-gradient-to-br from-[#0077b6] to-[#023e8a] flex-1 min-w-0 h-28 flex items-center justify-center flex-col text-white rounded-xl shadow-lg font-bold px-2 text-center">
               <span className="text-base sm:text-lg lg:text-xl">
                 จำนวนแหล่งน้ำทั้งหมด (แห่ง)
               </span>
@@ -100,11 +96,7 @@ function KPISection({
               </p>
             </div>
 
-            <div
-              className="bg-gradient-to-br from-[#00b4d8] to-[#0077b6]
-    flex-1 min-w-0 h-28 flex items-center justify-center flex-col
-    text-white rounded-xl shadow-lg font-bold px-2 text-center"
-            >
+            <div className="bg-gradient-to-br from-[#00b4d8] to-[#0077b6] flex-1 min-w-0 h-28 flex items-center justify-center flex-col text-white rounded-xl shadow-lg font-bold px-2 text-center">
               <span className="text-base sm:text-lg lg:text-xl">
                 ปริมาณการเก็บกักน้ำรวม (ลบ.ม.)
               </span>
@@ -118,12 +110,8 @@ function KPISection({
           </div>
 
           {/* รูปภาพ */}
-          <div
-            className="bg-white w-full min-h-[320px] md:h-[390px]
-            p-5 flex flex-col
-            text-[#023e8a] rounded-xl shadow-lg"
-          >
-            <span className="text-xl font-bold">
+          <div className="bg-white w-full h-[380px] sm:h-[400px] md:h-[420px] p-5 flex flex-col text-[#023e8a] rounded-xl shadow-lg">
+            <span className="text-base sm:text-lg md:text-xl font-bold">
               📸 ภาพถ่ายแหล่งน้ำ (นำเสนอทีละภาพ)
             </span>
 
@@ -139,10 +127,7 @@ function KPISection({
       {/* ================= CHART ROW 1 ================= */}
       <div className="grid grid-cols-1 gap-5 mt-5 xl:grid-cols-[minmax(0,1.3fr)_minmax(320px,0.7fr)]">
         {/* ปริมาณกักเก็บน้ำ */}
-        <div
-          className="bg-white w-full h-[320px] sm:h-[350px]
-          p-5 text-[#023e8a] rounded-xl shadow-lg"
-        >
+        <div className="bg-white w-full h-[320px] sm:h-[350px] p-5 text-[#023e8a] rounded-xl shadow-lg">
           <Chart
             title="💧 ปริมาณกักเก็บน้ำแยกตามประเภทแหล่งน้ำ (ลบ.ม.)"
             subtitle=""
@@ -152,10 +137,7 @@ function KPISection({
         </div>
 
         {/* สัดส่วนประเภทแหล่งน้ำ */}
-        <div
-          className="bg-white w-full min-w-0 h-[320px] sm:h-[350px]
-          p-5 rounded-xl shadow-lg text-[#023e8a]"
-        >
+        <div className="bg-white w-full min-w-0 h-[320px] sm:h-[350px] p-5 rounded-xl shadow-lg text-[#023e8a]">
           <Chart title="🌊 สัดส่วนประเภทแหล่งน้ำตามประเภท" subtitle="">
             <DoughnutChart
               label={Object.keys(countByType)}
@@ -168,11 +150,7 @@ function KPISection({
       {/* ================= CHART ROW 2 ================= */}
       <div className="grid grid-cols-1 gap-5 mt-5 xl:grid-cols-[minmax(0,1.3fr)_minmax(320px,0.7fr)]">
         {/* ปัญหาด้านน้ำ */}
-        <div
-          className="bg-white w-full h-[320px] sm:h-[350px]
-          p-5 text-[#023e8a]
-          rounded-xl shadow-lg"
-        >
+        <div className="bg-white w-full h-[320px] sm:h-[350px] p-5 text-[#023e8a] rounded-xl shadow-lg">
           <Chart title="🚨 ปัญหาด้านน้ำในพื้นที่" subtitle="">
             <HorizontalBarChart
               labels={problemLabels}
@@ -183,10 +161,7 @@ function KPISection({
         </div>
 
         {/* การใช้ประโยชน์ */}
-        <div
-          className="bg-white w-full min-w-0 h-[320px] sm:h-[350px]
-          p-5 rounded-xl shadow-lg text-[#023e8a]"
-        >
+        <div className="bg-white w-full min-w-0 h-[320px] sm:h-[350px]p-5 rounded-xl shadow-lg text-[#023e8a]">
           <Chart title="🎯 การใช้ประโยชน์แหล่งน้ำ" subtitle="">
             <DoughnutChart label={labels} values={values} />
           </Chart>

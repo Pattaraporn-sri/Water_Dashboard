@@ -24,25 +24,11 @@ export default function PhotoViewer({
     (item) => item.ec5_uuid === selectedWater?.ec5_uuid,
   );
 
-//   console.log(
-//     "PHOTO:",
-//     selectedWater?.name,
-//     selectedWater?.ec5_uuid,
-//     "INDEX:",
-//     currentIndex,
-//   );
-
   // ไปแหล่งน้ำถัดไป
   const nextWater = () => {
-    // console.log("NEXT CLICK");
-
-    // console.log("CURRENT INDEX =", currentIndex);
-
     if (currentIndex === -1) return;
 
     const next = waterData[(currentIndex + 1) % waterData.length];
-
-    // console.log("NEXT WATER =", next);
 
     setSelectedWater(next);
   };
@@ -57,47 +43,17 @@ export default function PhotoViewer({
     setSelectedWater(prev);
   };
 
-//   console.log("waterData length =", waterData.length);
-
-//   console.log(
-//     "waterData =",
-//     waterData.map((item) => ({
-//       name: item.name,
-//       uuid: item.ec5_uuid,
-//     })),
-//   );
-
   return (
     <>
-      <div className="flex flex-col h-full">
+      <div className="flex flex-col h-full min-h-0">
         {/* รูปภาพ */}
 
-        <div
-          className="
-    relative
-    flex-1
-    flex
-    items-center
-    justify-center
-    "
-        >
+        <div className="relative flex-1 min-h-0 flex items-center justify-center">
           {/* ปุ่มก่อนหน้า */}
           <button
             onClick={prevWater}
             disabled={waterData.length <= 1}
-            className="
-        absolute
-        left-2
-        w-10
-        h-10
-        rounded-full
-        bg-white
-        shadow-md
-        flex
-        items-center
-        justify-center
-        disabled:opacity-30
-        "
+            className="absolute left-2 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white shadow-md flex items-center justify-center disabled:opacity-30"
           >
             <LeftOutlined />
           </button>
@@ -108,15 +64,11 @@ export default function PhotoViewer({
               src={image}
               preview={false}
               alt={selectedWater.name}
-              className="
-        rounded-lg
-        cursor-pointer
-        "
+              className="rounded-lg cursor-pointer max-h-[180px] sm:max-h-[220px] md:max-h-[250px] w-auto"
               style={{
-                maxHeight: 260,
-                maxWidth: "90%",
+                // maxHeight: 260,
+                maxWidth: "85%",
                 objectFit: "contain",
-                
               }}
               onClick={() => setOpen(true)}
             />
@@ -128,19 +80,7 @@ export default function PhotoViewer({
           <button
             onClick={nextWater}
             disabled={waterData.length <= 1}
-            className="
-        absolute
-        right-2
-        w-10
-        h-10
-        rounded-full
-        bg-white
-        shadow-md
-        flex
-        items-center
-        justify-center
-        disabled:opacity-30
-        "
+            className="absolute right-2 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white shadow-md flex items-center justify-center disabled:opacity-30"
           >
             <RightOutlined />
           </button>
@@ -149,28 +89,12 @@ export default function PhotoViewer({
         {/* รายละเอียด */}
 
         {selectedWater && (
-          <div
-            className="
-              text-center
-              font-kanit
-              "
-          >
-            <div
-              className="
-                font-semibold
-                text-[#023e8a]
-                text-lg
-                "
-            >
+          <div className="text-center font-kanit shrink-0">
+            <div className="font-semibold text-[#023e8a] text-base sm:text-lg">
               {selectedWater.name}
             </div>
 
-            <div
-              className="
-                text-sm
-                text-gray-500
-                "
-            >
+            <div className="text-xs sm:text-sm text-gray-500">
               ต.{selectedWater.subdistrict}
               {" • "}
               อ.{selectedWater.district}
@@ -178,13 +102,7 @@ export default function PhotoViewer({
               จ.{selectedWater.province}
             </div>
 
-            <div
-              className="
-                text-xs
-                text-gray-400
-                mb-5
-                "
-            >
+            <div className="text-xs text-gray-400 mb-2">
               แหล่งน้ำที่ {currentIndex + 1}
               {" จาก "}
               {waterData.length}
