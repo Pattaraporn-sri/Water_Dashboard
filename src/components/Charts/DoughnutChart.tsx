@@ -60,30 +60,32 @@ const DoughnutChart = ({
 
         font: {
           family: "Kanit",
-          size: 15,
+          size: 12,
         },
 
         formatter: (value: number) => value,
       },
     },
 
-    cutout: "40%",
+    cutout: "45%",
   };
 
   return (
-    <div className="flex items-center gap-3">
-      <div className="h-[200px] w-[200px] mt-5">
+    <div className="flex flex-col sm:flex-row items-center gap-3 h-full w-full min-w-0">
+      {/* กราฟ */}
+      <div className="relative flex-shrink-0 w-[140px] h-[140px] sm:w-[150px] sm:h-[150px] md:w-[170px] md:h-[170px]">
         <Doughnut data={data} options={options} />
       </div>
 
-      <div className="ml-5">
+      {/* Legend */}
+      <div className="flex flex-col gap-1.5 min-w-0 w-full sm:w-auto sm:flex-1 overflow-y-auto max-h-[140px] sm:max-h-full">
         {label.map((item, index) => (
-          <div key={item} className="flex items-center gap-2 ml-2">
+          <div key={item} className="flex items-center gap-2 min-w-0">
             <span
-              className="h-3 w-10 rounded-full"
+              className="h-2.5 w-6 sm:w-8 rounded-full flex-shrink-0"
               style={{ backgroundColor: colors[index] }}
             />
-            <span className="text-sm ml-2">{item}</span>
+            <span className="text-xs sm:text-sm truncate">{item}</span>
           </div>
         ))}
       </div>

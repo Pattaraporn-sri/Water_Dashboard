@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -40,7 +41,6 @@ const defaultColors = [
   "#ee9b00",
   "#ca6702",
   "#bb3e03",
-
 ];
 
 // สีเฉพาะ CK002
@@ -61,6 +61,15 @@ const HorizontalBarChart = ({
   showDataLabels = true,
   chartType = "default",
 }: HorizontalBarChartProps) => {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 640);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
   const backgroundColors =
     chartType === "problem"
       ? labels.map((label) => problemColors[label] || "#94a3b8")
@@ -129,7 +138,7 @@ const HorizontalBarChart = ({
           font: {
             family: "Kanit",
 
-            size: 10,
+            size: isMobile ? 8 : 10,
           },
         },
 
@@ -139,13 +148,23 @@ const HorizontalBarChart = ({
       },
 
       y: {
+        afterFit: (scale: any) => {
+          scale.width = isMobile ? 90 : 130; // จำกัดความกว้างแกน Y ไม่ให้กินพื้นที่กราฟ
+        },
         ticks: {
           color: "#374151",
 
           font: {
             family: "Kanit",
 
-            size: 12,
+            size: isMobile ? 9 : 11,
+          },
+
+          // ตัดข้อความ label ยาวๆ บนมือถือ ป้องกันล้น
+          callback: function (this: any, value: any): string {
+            const label = this.getLabelForValue(value);
+            const limit = isMobile ? 12 : 16;
+            return label.length > limit ? label.slice(0, limit) + "…" : label;
           },
         },
 
@@ -157,7 +176,7 @@ const HorizontalBarChart = ({
   };
 
   return (
-    <div className="h-[250px] -mt-3">
+    <div className="h-full">
       <Bar data={data} options={options} />
     </div>
   );

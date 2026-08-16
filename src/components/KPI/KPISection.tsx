@@ -127,7 +127,7 @@ function KPISection({
       {/* ================= CHART ROW 1 ================= */}
       <div className="grid grid-cols-1 gap-5 mt-5 xl:grid-cols-[minmax(0,1.3fr)_minmax(320px,0.7fr)]">
         {/* ปริมาณกักเก็บน้ำ */}
-        <div className="bg-white w-full h-[320px] sm:h-[350px] p-5 text-[#023e8a] rounded-xl shadow-lg">
+        <div className="bg-white w-full h-[360px] sm:h-[350px] p-4 sm:p-5 text-[#023e8a] rounded-xl shadow-lg">
           <Chart
             title="💧 ปริมาณกักเก็บน้ำแยกตามประเภทแหล่งน้ำ (ลบ.ม.)"
             subtitle=""
