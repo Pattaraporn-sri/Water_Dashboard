@@ -54,7 +54,7 @@ function FilterBar({ onFilterChange }: FilterBarProps) {
   }, [province, district, subdistrict]);
 
   return (
-    <div className="w-full max-w-[1650px] min-w-0 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 font-kanit bg-gradient-to-r from-[#0077b6] to-[#00b4d8] rounded-xl ml-5 mb-5 -mt-7 px-4 py-4">
+    <div className="w-full min-w-0 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 font-kanit bg-gradient-to-r from-[#0077b6] to-[#00b4d8] rounded-xl mx-3 sm:mx-5 mb-5 px-4 py-4">
       <select
         value={province}
         onChange={(e) => {

@@ -88,22 +88,28 @@ function KPISection({
           <div className="flex flex-col gap-2 sm:flex-row w-full">
             <div
               className="bg-gradient-to-br from-[#0077b6] to-[#023e8a]
-              w-full sm:flex-1 lg:w-[350px] h-28 flex items-center justify-center flex-col
-              text-white rounded-xl shadow-lg font-bold"
+    flex-1 min-w-0 h-28 flex items-center justify-center flex-col
+    text-white rounded-xl shadow-lg font-bold px-2 text-center"
             >
-              <span className="text-xl">จำนวนแหล่งน้ำทั้งหมด (แห่ง)</span>
+              <span className="text-base sm:text-lg lg:text-xl">
+                จำนวนแหล่งน้ำทั้งหมด (แห่ง)
+              </span>
 
-              <p className="text-2xl">{waterData.length.toLocaleString()}</p>
+              <p className="text-xl sm:text-2xl">
+                {waterData.length.toLocaleString()}
+              </p>
             </div>
 
             <div
               className="bg-gradient-to-br from-[#00b4d8] to-[#0077b6]
-              w-full sm:flex-1 lg:w-[350px] h-28 flex items-center justify-center flex-col
-              text-white rounded-xl shadow-lg font-bold"
+    flex-1 min-w-0 h-28 flex items-center justify-center flex-col
+    text-white rounded-xl shadow-lg font-bold px-2 text-center"
             >
-              <span className="text-xl">ปริมาณการเก็บกักน้ำรวม (ลบ.ม.)</span>
+              <span className="text-base sm:text-lg lg:text-xl">
+                ปริมาณการเก็บกักน้ำรวม (ลบ.ม.)
+              </span>
 
-              <p className="text-2xl">
+              <p className="text-xl sm:text-2xl">
                 {Object.values(storageByType)
                   .reduce((sum, value) => sum + value, 0)
                   .toLocaleString()}
