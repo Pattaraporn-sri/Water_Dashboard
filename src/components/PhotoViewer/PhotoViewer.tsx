@@ -65,7 +65,7 @@ export default function PhotoViewer({
                 src={image}
                 preview={false}
                 alt={selectedWater.name}
-                className="rounded-lg cursor-pointer max-h-[180px] sm:max-h-[220px] md:max-h-[250px] w-auto block mx-auto"
+                className="rounded-lg cursor-pointer max-h-[180px] sm:max-h-[220px] md:max-h-[200px] w-auto block mx-auto"
                 style={{
                   // maxHeight: 260,
                   maxWidth: "100%",

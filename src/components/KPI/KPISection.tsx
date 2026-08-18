@@ -78,7 +78,7 @@ function KPISection({
       {/* ================= TOP SECTION ================= */}
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.75fr)]">
         {/* Map */}
-        <div className="rounded-xl shadow-lg overflow-hidden h-[320px] sm:h-[420px] lg:h-[520px] w-full max-w-full">
+        <div className="rounded-xl shadow-lg overflow-hidden h-[320px] sm:h-[420px] lg:h-[490px] w-full max-w-full">
           <MapView data={waterData} onMarkerClick={setSelectedWater} />
         </div>
 
@@ -87,7 +87,7 @@ function KPISection({
           {/* KPI */}
           <div className="flex flex-col gap-2 sm:flex-row w-full">
             <div className="bg-gradient-to-br from-[#0077b6] to-[#023e8a] flex-1 min-w-0 h-28 flex items-center justify-center flex-col text-white rounded-xl shadow-lg font-bold px-2 text-center">
-              <span className="text-base sm:text-lg lg:text-xl">
+              <span className="text-base sm:text-lg lg:text-lg">
                 จำนวนแหล่งน้ำทั้งหมด (แห่ง)
               </span>
 
@@ -97,7 +97,7 @@ function KPISection({
             </div>
 
             <div className="bg-gradient-to-br from-[#00b4d8] to-[#0077b6] flex-1 min-w-0 h-28 flex items-center justify-center flex-col text-white rounded-xl shadow-lg font-bold px-2 text-center">
-              <span className="text-base sm:text-lg lg:text-xl">
+              <span className="text-base sm:text-lg lg:text-lg">
                 ปริมาณการเก็บกักน้ำรวม (ลบ.ม.)
               </span>
 
@@ -110,7 +110,7 @@ function KPISection({
           </div>
 
           {/* รูปภาพ */}
-          <div className="bg-white w-full h-[380px] sm:h-[400px] md:h-[420px] p-5 flex flex-col text-[#023e8a] rounded-xl shadow-lg">
+          <div className="bg-white w-full h-[380px] sm:h-[400px] md:h-[360px] p-5 flex flex-col text-[#023e8a] rounded-xl shadow-lg">
             <span className="text-base sm:text-lg md:text-xl font-bold">
               📸 ภาพถ่ายแหล่งน้ำ (นำเสนอทีละภาพ)
             </span>
@@ -161,7 +161,7 @@ function KPISection({
         </div>
 
         {/* การใช้ประโยชน์ */}
-        <div className="bg-white w-full min-w-0 h-[320px] sm:h-[350px]p-5 rounded-xl shadow-lg text-[#023e8a]">
+        <div className="bg-white w-full min-w-0 h-[320px] sm:h-[350px] p-5 rounded-xl shadow-lg text-[#023e8a]">
           <Chart title="🎯 การใช้ประโยชน์แหล่งน้ำ" subtitle="">
             <DoughnutChart label={labels} values={values} />
           </Chart>
