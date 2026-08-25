@@ -1,6 +1,9 @@
+// import { useNavigate } from "react-router-dom";
 import Logo from "../../assets/Water_Dashboard.png";
 
 function Header() {
+  // const navigate = useNavigate();
+
   return (
     <div className="font-kanit w-full min-w-0 overflow-x-hidden">
       <div className="w-full flex justify-between bg-[linear-gradient(135deg,#003049_0%,#0077b6_100%)] pt-8 p-4 h-36">
@@ -14,6 +17,13 @@ function Header() {
             ระบบเก็บข้อมูล
           </h1>
         </div>
+
+        {/* <button
+          onClick={() => navigate("/water-management")}
+          className="bg-[#00466c] hover:bg-[#0077b6]  text-center px-4 rounded-xl shadow-xl h-10 mt-4 text-neutral-50 border-[1px]"
+        >
+          การบริหารจัดการน้ำ
+        </button> */}
 
         {/* <div className="flex gap-2 text-xs mt-4">
           <div className="bg-[#00466c] hover:bg-[#0077b6] w-24 h-8 text-center pt-2 rounded-2xl shadow-xl text-neutral-50 border-[1px]">
