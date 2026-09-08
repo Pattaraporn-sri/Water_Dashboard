@@ -17,6 +17,7 @@ const MapView = ({ data, onMarkerClick }: MapViewProps) => {
   const mapRef = useRef<maplibregl.Map | null>(null);
   const markersRef = useRef<maplibregl.Marker[]>([]);
   const popupRef = useRef<maplibregl.Popup | null>(null);
+  const isFirstDataLoad = useRef(true);
   const [showBasemapMenu, setShowBasemapMenu] = useState(false);
   const [basemap, setBasemap] = useState<keyof typeof BASEMAPS>("Satellite");
   const MAPTILER_KEY = import.meta.env.VITE_MAPTILER_KEY;
@@ -57,18 +58,38 @@ const MapView = ({ data, onMarkerClick }: MapViewProps) => {
     setBasemap(type);
   };
 
+  const MAP_VIEW_STORAGE_KEY = "water-dashboard-map-view";
+
+  const getSavedMapView = () => {
+    try {
+      const saved = sessionStorage.getItem(MAP_VIEW_STORAGE_KEY);
+
+      if (!saved) return null;
+
+      return JSON.parse(saved) as {
+        center: [number, number];
+        zoom: number;
+      };
+    } catch {
+      return null;
+    }
+  };
+
   useEffect(() => {
     if (!mapContainer.current || mapRef.current) return;
+
+    const savedView = getSavedMapView();
 
     const map = new maplibregl.Map({
       container: mapContainer.current,
 
       style: BASEMAPS.Satellite,
 
-      // ขอนแก่น
-      center: [102.839, 16.441],
+      // ถ้ามีตำแหน่งที่เคยบันทึกไว้ → ใช้ตำแหน่งเดิม
+      // ถ้ายังไม่มี → ใช้ตำแหน่งเริ่มต้นขอนแก่น
+      center: savedView?.center ?? [102.839, 16.441],
 
-      zoom: 11,
+      zoom: savedView?.zoom ?? 7,
     });
 
     // ปุ่ม Zoom In / Zoom Out
@@ -78,6 +99,18 @@ const MapView = ({ data, onMarkerClick }: MapViewProps) => {
     map.addControl(new maplibregl.FullscreenControl(), "top-right");
 
     mapRef.current = map;
+
+    map.on("moveend", () => {
+      const center = map.getCenter();
+
+      sessionStorage.setItem(
+        MAP_VIEW_STORAGE_KEY,
+        JSON.stringify({
+          center: [center.lng, center.lat],
+          zoom: map.getZoom(),
+        }),
+      );
+    });
 
     const addBoundaryLayers = (map: maplibregl.Map) => {
       if (map.getSource("tambon-boundary")) return; // กันซ้ำ
@@ -193,7 +226,21 @@ const MapView = ({ data, onMarkerClick }: MapViewProps) => {
     });
 
     if (map.isStyleLoaded()) {
-      fitToMarkers(map, data);
+      const savedView = getSavedMapView();
+
+      // ถ้ามีตำแหน่งเดิมอยู่แล้ว
+      // แปลว่าเรากลับเข้าหน้า Dashboard
+      // ไม่ต้อง zoom ใหม่
+      if (isFirstDataLoad.current) {
+        if (!savedView) {
+          fitToMarkers(map, data);
+        }
+
+        isFirstDataLoad.current = false;
+      } else {
+        // กรณีข้อมูลเปลี่ยนจากการเปลี่ยน Filter
+        fitToMarkers(map, data);
+      }
     }
   }, [data]);
 

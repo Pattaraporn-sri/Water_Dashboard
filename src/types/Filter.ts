@@ -13,5 +13,6 @@ export interface SelectedFilter {
 }
 
 export interface FilterBarProps {
+  filter: SelectedFilter;
   onFilterChange: (filter: SelectedFilter) => void;
 }

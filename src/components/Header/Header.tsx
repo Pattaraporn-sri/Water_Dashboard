@@ -1,9 +1,12 @@
-// import { useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import Logo from "../../assets/Water_Dashboard.png";
+import type { SelectedFilter } from "../../types/Filter";
 
-function Header() {
-  // const navigate = useNavigate();
+interface HaederProps {
+  filter: SelectedFilter;
+}
 
+function Header({ filter }: HaederProps) {
   return (
     <div className="font-kanit w-full min-w-0 overflow-x-hidden">
       <div className="w-full flex justify-between bg-[linear-gradient(135deg,#003049_0%,#0077b6_100%)] pt-8 p-4 h-36">
@@ -18,24 +21,49 @@ function Header() {
           </h1>
         </div>
 
-        {/* <button
-          onClick={() => navigate("/water-management")}
-          className="bg-[#00466c] hover:bg-[#0077b6]  text-center px-4 rounded-xl shadow-xl h-10 mt-4 text-neutral-50 border-[1px]"
-        >
-          การบริหารจัดการน้ำ
-        </button> */}
+        {/* Navigation */}
+        <div className="flex gap-3 mt-4">
+          {/* แหล่งน้ำ */}
+          <NavLink
+            to="/"
+            state={{
+              province: filter.province,
+              district: filter.district,
+              subdistrict: filter.subdistrict,
+              type: filter.type,
+            }}
+            className={({ isActive }) =>
+              `text-center px-4 rounded-xl shadow-xl h-10 flex items-center border-[1px] transition
+              ${
+                isActive
+                  ? "bg-white text-[#00466c] border-white"
+                  : "bg-[#00466c] text-neutral-50 border-[#ffffff] hover:bg-[#0077b6]"
+              }`
+            }
+          >
+            แหล่งน้ำ
+          </NavLink>
 
-        {/* <div className="flex gap-2 text-xs mt-4">
-          <div className="bg-[#00466c] hover:bg-[#0077b6] w-24 h-8 text-center pt-2 rounded-2xl shadow-xl text-neutral-50 border-[1px]">
-            ส่งออก Excel
-          </div>
-          <div className="bg-[#00466c] hover:bg-[#0077b6] w-24 h-8 text-center pt-2 rounded-2xl shadow-xl text-neutral-50 border-[1px]">
-            Report PDF
-          </div>
-          <div className="bg-[#00466c] hover:bg-[#0077b6] w-24 h-8 text-center pt-2 rounded-2xl shadow-xl text-neutral-50 border-[1px]">
-            บันทึกภาพ
-          </div>
-        </div> */}
+          {/* การบริหารจัดการน้ำ */}
+          <NavLink
+            to="/water-management"
+            state={{
+              province: filter.province,
+              district: filter.district,
+              subdistrict: filter.subdistrict,
+            }}
+            className={({ isActive }) =>
+              `text-center px-4 rounded-xl shadow-xl h-10 flex items-center border-[1px] transition
+              ${
+                isActive
+                  ? "bg-white text-[#00466c] border-white"
+                  : "bg-[#00466c] text-neutral-50 border-[#ffffff] hover:bg-[#0077b6]"
+              }`
+            }
+          >
+            การบริหารจัดการน้ำ
+          </NavLink>
+        </div>
       </div>
     </div>
   );

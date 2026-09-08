@@ -2,17 +2,13 @@ import { useState, useEffect } from "react";
 import { BASE_URL } from "../../services/api";
 import type { FilterResponse, FilterBarProps } from "../../types/Filter";
 
-function FilterBar({ onFilterChange }: FilterBarProps) {
+function FilterBar({ filter, onFilterChange }: FilterBarProps) {
   const [filters, setFilters] = useState<FilterResponse>({
     provinces: [],
     districts: [],
     subdistricts: [],
     types: [],
   });
-  const [province, setProvince] = useState("");
-  const [district, setDistrict] = useState("");
-  const [subdistrict, setSubdistrict] = useState("");
-  const [waterType, setWaterType] = useState("");
 
   const updateFilter = (p: string, d: string, s: string, t: string) => {
     onFilterChange({
@@ -28,43 +24,36 @@ function FilterBar({ onFilterChange }: FilterBarProps) {
       action: "filter",
     });
 
-    if (province) {
-      params.append("province", province);
+    if (filter.province) {
+      params.append("province", filter.province);
     }
 
-    if (district) {
-      params.append("district", district);
+    if (filter.district) {
+      params.append("district", filter.district);
     }
 
-    if (subdistrict) {
-      params.append("subdistrict", subdistrict);
+    if (filter.subdistrict) {
+      params.append("subdistrict", filter.subdistrict);
     }
-
-    // console.log(params.toString());
 
     fetch(`${BASE_URL}?${params.toString()}`)
       .then((res) => res.json())
       .then((data: FilterResponse) => {
-        // console.log(data);
         setFilters(data);
       })
       .catch((error) => {
         console.error("โหลด Filter ไม่สำเร็จ:", error);
       });
-  }, [province, district, subdistrict]);
+  }, [filter.province, filter.district, filter.subdistrict]);
 
   return (
     <div className="min-w-0 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 font-kanit bg-gradient-to-r from-[#0077b6] to-[#00b4d8] rounded-xl mx-3 sm:mx-5 -mt-7 mb-5 px-4 py-4 relative z-10">
       <select
-        value={province}
+        value={filter.province}
         onChange={(e) => {
           const value = e.target.value;
 
-          setProvince(value);
-          setDistrict("");
-          setSubdistrict("");
-
-          updateFilter(value, "", "", waterType);
+          updateFilter(value, "", "", filter.type);
         }}
         className="h-8 w-full min-w-0 rounded-lg bg-white p-1 border border-gray-300 focus:border-sky-600 focus:ring-2 focus:ring-blue-200 focus:outline-none"
       >
@@ -78,14 +67,11 @@ function FilterBar({ onFilterChange }: FilterBarProps) {
       </select>
 
       <select
-        value={district}
+        value={filter.district}
         onChange={(e) => {
           const value = e.target.value;
 
-          setDistrict(value);
-          setSubdistrict("");
-
-          updateFilter(province, value, "", waterType);
+          updateFilter(filter.province, value, "", filter.type);
         }}
         className="h-8 w-full min-w-0 rounded-lg bg-white p-1 border border-gray-300 focus:border-sky-600 focus:ring-2 focus:ring-blue-200 focus:outline-none"
       >
@@ -99,13 +85,11 @@ function FilterBar({ onFilterChange }: FilterBarProps) {
       </select>
 
       <select
-        value={subdistrict}
+        value={filter.subdistrict}
         onChange={(e) => {
           const value = e.target.value;
 
-          setSubdistrict(value);  
-
-          updateFilter(province, district, value, waterType);
+          updateFilter(filter.province, filter.district, value, filter.type);
         }}
         className="h-8 w-full min-w-0 rounded-lg bg-white p-1 border border-gray-300 focus:border-sky-600 focus:ring-2 focus:ring-blue-200 focus:outline-none"
       >
@@ -119,13 +103,16 @@ function FilterBar({ onFilterChange }: FilterBarProps) {
       </select>
 
       <select
-        value={waterType}
+        value={filter.type}
         onChange={(e) => {
           const value = e.target.value;
 
-          setWaterType(value);
-
-          updateFilter(province, district, subdistrict, value);
+          updateFilter(
+            filter.province,
+            filter.district,
+            filter.subdistrict,
+            value,
+          );
         }}
         className="h-8 w-full min-w-0 rounded-lg bg-white p-1 border border-gray-300 focus:border-sky-600 focus:ring-2 focus:ring-blue-200 focus:outline-none"
       >

@@ -1,59 +1,315 @@
-import { Breadcrumb } from "antd";
-import { useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { BASE_URL } from "../services/api";
+import BudgetYearFilter from "../components/FilterBar/BudgetYearFilter";
+import Header from "../components/Header/Header";
+import type { SelectedFilter } from "../types/Filter";
+import StrategyChart from "../components/Charts/StrategyChart";
+import VillageProjectChart from "../components/Charts/VillageProjectChart";
+import WaterSourceChart from "../components/Charts/WaterSourceChart";
+import strategy from "../assets/strategy.png";
+import village from "../assets/village.png";
+import water from "../assets/sea.png";
+import projectDetail from "../assets/management.png";
+import ProjectTable from "../components/Table/ProjectTable";
+import { Modal } from "antd";
+
+interface ProjectBank {
+  no: number | string;
+  projectName: string;
+  projectDetail: string;
+  responsibleAgency: string;
+  supportingAgency: string;
+  budget: number;
+  year: number;
+  strategy: string;
+  benefit: string;
+  villageNo: number | string;
+  villageName: string;
+  waterSource: string;
+}
+
+interface WaterManagementState {
+  province: string;
+  district: string;
+  subdistrict: string;
+}
 
 const WaterManagement = () => {
-  const navigate = useNavigate();
+  const [projects, setProjects] = useState<ProjectBank[]>([]);
+  const [selectedYear, setSelectedYear] = useState("");
+  const [searchText, setSearchText] = useState("");
+  const [selectedStrategy, setSelectedStrategy] = useState("");
+  const location = useLocation();
+  const [selectedProject, setSelectedProject] = useState<ProjectBank | null>(
+    null,
+  );
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const state = location.state as WaterManagementState | null;
+
+  const province = state?.province || "";
+  const district = state?.district || "";
+  const subdistrict = state?.subdistrict || "";
+
+  console.log("===== WATER MANAGEMENT STATE =====");
+  console.log("location.state:", location.state);
+  console.log("province:", province);
+  console.log("district:", district);
+  console.log("subdistrict:", subdistrict);
+
+  const filter: SelectedFilter = {
+    province,
+    district,
+    subdistrict,
+    type: "",
+  };
+
+  // สร้างปีจากข้อมูลโครงการที่ได้รับมา
+  const years = Array.from(
+    new Set(projects.map((project) => String(project.year)).filter(Boolean)),
+  ).sort((a, b) => Number(b) - Number(a));
+
+  // ยุทธ์ศาสตร์การบริหารจัดการทรัพยากรน้ำ 5 ด้าน
+  const strategies = Array.from(
+    new Set(projects.map((project) => project.strategy).filter(Boolean)),
+  );
+
+  useEffect(() => {
+    const fetchProjectBank = async () => {
+      try {
+        const params = new URLSearchParams({
+          action: "projectBank",
+          province,
+          district,
+          subdistrict,
+        });
+
+        const url = `${BASE_URL}?${params.toString()}`;
+
+        console.log("===== PROJECT BANK REQUEST =====");
+        console.log("URL:", url);
+
+        const response = await fetch(url);
+
+        console.log("STATUS:", response.status);
+
+        const data = await response.json();
+
+        console.log("===== PROJECT BANK DATA =====");
+        console.log(data);
+
+        console.log("IS ARRAY:", Array.isArray(data));
+        console.log("LENGTH:", data?.length);
+
+        if (Array.isArray(data)) {
+          setProjects(data);
+        } else {
+          console.error("ข้อมูลไม่ใช่ Array:", data);
+          setProjects([]);
+        }
+      } catch (error) {
+        console.error("โหลด Project Bank ไม่สำเร็จ:", error);
+        setProjects([]);
+      }
+    };
+
+    fetchProjectBank();
+  }, [province, district, subdistrict]);
+
+  // Filter
+  const filteredProjects = projects.filter((project) => {
+    const matchYear = selectedYear
+      ? String(project.year) === selectedYear
+      : true;
+
+    const matchStrategy = selectedStrategy
+      ? project.strategy === selectedStrategy
+      : true;
+
+    const search = searchText.toLowerCase().trim();
+
+    const matchSearch = search
+      ? project.projectName?.toLowerCase().includes(search) ||
+        String(project.villageNo).includes(search) ||
+        project.responsibleAgency?.toLowerCase().includes(search)
+      : true;
+
+    return matchYear && matchStrategy && matchSearch;
+  });
+
+  //ช่อง search
+  const searchProjects = filteredProjects.filter((project) => {
+    const search = searchText.toLowerCase().trim();
+
+    if (!search) return true;
+
+    return (
+      project.projectName.toLowerCase().includes(search) ||
+      project.villageNo.toString().toLowerCase().includes(search) ||
+      project.responsibleAgency?.toLowerCase().includes(search)
+    );
+  });
+
+  // KPI จำนวนโครงการ
+  const projectCount = filteredProjects.length;
+
+  // KPI งบประมาณ
+  const totalBudget = filteredProjects.reduce(
+    (sum, project) => sum + Number(project.budget || 0),
+    0,
+  );
+
+  // เปิด Modal แสดงรายละเอียดโครงการ
+  const handleOpenDetail = (record: ProjectBank) => {
+    setSelectedProject(record);
+    setIsModalOpen(true);
+  };
 
   return (
-    <div className="p-5 font-kanit">
-      <div className="bg-green-600 flex justify-center items-center p-4 rounded-lg">
-        <h1 className="text-3xl font-bold">การบริหารจัดการน้ำ</h1>
-      </div>
+    <div className="font-kanit bg-slate-100 w-full min-w-0 overflow-x-hidden">
+      <Header filter={filter} />
 
-      <Breadcrumb
-        items={[
-          {
-            title: (
-              <span onClick={() => navigate("/")} className="cursor-pointer">
-                Home
-              </span>
-            ),
-          },
-          {
-            title: "Water Management",
-          },
-        ]}
-        className="mt-2"
-      />
+      <div className="flex justify-between">
+        <div className="flex gap-2 mt-5 ml-5 text-2xl">
+          {filter.subdistrict && <p>ตำบล{filter.subdistrict}</p>}
 
-      <div className="flex gap-2 mt-4">
-        <button>จังหวัด</button>
-        <button>อำเภอ</button>
-        <button>ตำบล</button>
-        <button>ปีงบประมาณ</button>
-      </div>
-      <div className="flex gap-4">
-        <div className="bg-orange-300 p-4 mt-4 rounded-lg w-60">
-        โครงการทั้งหมด 128 โครงการ
-      </div>
-      <div className="bg-orange-300 p-4 mt-4 rounded-lg w-60">
-        142.5340 ล้านบาท
-      </div>
-      </div>
-      
-      <div className="flex justify-between gap-4 mt-4">
-        <div className="bg-yellow-100 rounded-lg w-1/2 p-4">
-          <p className="font-bold text-lg">
-            ยุทธศาสตร์การบริหารจัดการทรัพยากรน้ำ 5 ด้าน
+          {filter.district && <p>อำเภอ{filter.district}</p>}
+
+          {filter.province && <p>จังหวัด{filter.province}</p>}
+
+          <p className="text-2xl">
+            {selectedYear ? `ประจำปีงบประมาณ ${selectedYear}` : "ทุกปีงบประมาณ"}
           </p>
-          <div> กราฟวงกลม </div>
         </div>
-        <div className="bg-blue-300 h-64 rounded-lg ">
-          MAP
+
+        {/* filter ปีงบประมาณ */}
+        <div className="flex gap-2 mr-5 mt-5">
+          <BudgetYearFilter
+            years={years}
+            selectedYear={selectedYear}
+            onChange={setSelectedYear}
+          />
         </div>
       </div>
+
+      {/* KPI */}
+      <div className="flex gap-4 ml-5 mr-5">
+        <div className="bg-gradient-to-br from-[#5196bc] to-[#024193] p-5 mt-4 rounded-lg w-60 shadow-lg text-white">
+          <p className=" text-sm">โครงการทั้งหมด</p>
+          <p className="font-bold text-2xl flex justify-center">
+            {projectCount} โครงการ
+          </p>
+        </div>
+        <div className="bg-gradient-to-br from-[#5196bc] to-[#024193] p-5 mt-4 rounded-lg w-60 shadow-lg text-white">
+          <p className="text-sm">งบประมาณ</p>
+          <p className="font-bold text-2xl flex justify-center">
+            {" "}
+            {totalBudget.toLocaleString()} บาท
+          </p>
+        </div>
+      </div>
+
+      {/* Chart */}
+      <div className="flex gap-4 m-5">
+        {/* กราฟยุทธศาสตร์ */}
+        <div className="bg-white rounded-xl p-5 shadow-lg w-[485px] h-[320px]">
+          <div className="flex">
+            <img src={strategy} alt="Strategy" className="w-7 h-7 ml-2" />
+            <p className="font-bold text-xl text-[#023e8a] mb-5 ml-2">
+              ยุทธศาสตร์การบริหารจัดการทรัพยากรน้ำ 5 ด้าน
+            </p>
+          </div>
+          {/* <hr className="w-[400px] ml-11 -mt-2"/> */}
+          <StrategyChart projects={filteredProjects} />
+        </div>
+
+        {/* กราฟแท่งจำนวนโครงการตามหมู่บ้าน */}
+        <div className="bg-white rounded-xl p-5 shadow-lg w-[485px] h-[320px]">
+          <div className="flex">
+            <img src={village} alt="Village" className="w-8 h-8 ml-2" />
+            <p className="font-bold text-xl text-[#023e8a] ml-2 mb-2">
+              จำนวโครงการตามหมู่บ้าน
+            </p>
+          </div>
+
+          <VillageProjectChart projects={filteredProjects} />
+        </div>
+        {/* กราฟ Horizontal แสดงหน่วยงานที่รับผิดชอบ */}
+        <div className="bg-white rounded-xl p-4 shadow-lg w-[485px] h-[320px]">
+          <div className="flex">
+            <img src={water} alt="Water" className="w-7 h-7 ml-2" />
+            <p className="font-bold text-xl text-[#023e8a] ml-2 mb-3">
+              แหล่งน้ำ
+            </p>
+          </div>
+          <WaterSourceChart projects={filteredProjects} />
+        </div>
+      </div>
+      {/* ตารางรายละเอียดโครงการ */}
       <div>
-        <p className="font-bold text-xl p-4 mt-4">รายละเอียดโครงการ (ตาราง)</p>
+        {/* <p className="font-bold text-2xl p-4 mt-3 text-[#023e8a]">
+          รายละเอียดโครงการ
+        </p> */}
+        <ProjectTable
+          projects={searchProjects}
+          searchText={searchText}
+          onSearch={setSearchText}
+          strategies={strategies}
+          selectedStrategy={selectedStrategy}
+          onStrategyChange={setSelectedStrategy}
+          onOpenDetail={handleOpenDetail}
+        />
+        {/* Modal */}
+        <Modal
+          title={
+            <div className="font-bold text-3xl text-[#023e8a]">
+              รายละเอียดโครงการ
+            </div>
+          }
+          width={700}
+          open={isModalOpen}
+          onCancel={() => setIsModalOpen(false)}
+          footer={null}
+          className="font-kanit"
+        >
+          {selectedProject && (
+            <div>
+              <hr className="text-neutral-400 mb-2 w-[650px]" />
+              <div className="flex justify-between text-xs">
+                <p className="mt-1 bg-[#E6F2FF] h-6 p-2 flex justify-center items-center rounded-full text-[#0163DD]">
+                  {selectedProject.strategy}
+                </p>
+                <p className="bg-green-600 h-6 w-28 flex justify-center items-center rounded-full text-white">
+                  ปีงบประมาณ : {selectedProject.year}
+                </p>
+              </div>
+              <div className="flex gap-2 mb-2 mt-2">
+                <img
+                  src={projectDetail}
+                  alt="Project Detail"
+                  className="w-5 h-5 mt-1"
+                />
+                <p className="text-xl">{selectedProject.projectName}</p>
+              </div>
+              {/* <p className="">รายละเอียด :</p> */}
+              <p>รายละเอียด : {selectedProject.projectDetail}</p>
+              <div className="flex">
+                <p> หมู่ที่ : {selectedProject.villageNo}</p>
+                <p className="ml-5">หมู่บ้าน : {selectedProject.villageName}</p>
+              </div>
+              <p className="text-lg">
+                งบประมาณ : {selectedProject.budget.toLocaleString()} บาท
+              </p>
+
+              <p> ประโยชน์ที่ได้รับ : {selectedProject.benefit}</p>
+              <p> หน่วยงานที่รับผิดชอบ : {selectedProject.responsibleAgency}</p>
+              {/* <p> แหล่งน้ำ : {selectedProject.waterSource}</p> */}
+              {/* <p> หน่วยงานที่สนับสนุน : {selectedProject.supportingAgency}</p> */}
+              <p> </p>
+            </div>
+          )}
+        </Modal>
       </div>
     </div>
   );
