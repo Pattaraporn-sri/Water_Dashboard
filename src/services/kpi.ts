@@ -9,6 +9,14 @@ export async function getKPIData(filter: SelectedFilter) {
     subdistrict: filter.subdistrict,
     type: filter.type,
   });
+  console.log("🎯 KPI FILTER SENT:", {
+    province: filter.province,
+    district: filter.district,
+    subdistrict: filter.subdistrict,
+    type: filter.type,
+  });
+
+  console.log("🎯 KPI REQUEST URL:", `${BASE_URL}?${params.toString()}`);
 
   const url = `${BASE_URL}?${params.toString()}`;
 
@@ -43,7 +51,7 @@ export async function getKPIData(filter: SelectedFilter) {
     "seconds",
   );
 
-  console.log("📊 KPI DATA:", data);
+  console.log("🚨 CK002 problemSummary:", data.problemSummary);
 
   return data;
 }

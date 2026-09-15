@@ -53,41 +53,40 @@ function App() {
     async function loadDashboardData() {
       console.log("🔄 LOAD DASHBOARD DATA", filter);
 
-      // -----------------------------
-      // Water API
-      // -----------------------------
-      getWaterData(filter)
-        .then((water) => {
-          if (cancelled) return;
+      try {
+        // -----------------------------
+        // Water API
+        // -----------------------------
+        console.log("💧 START WATER");
 
-          console.log("💧 WATER DATA COMPLETE:", water.length);
-          setWaterData(water);
-        })
-        .catch((error) => {
-          if (cancelled) return;
+        const water = await getWaterData(filter);
 
-          console.error("❌ Water API error:", error);
+        if (cancelled) return;
+
+        console.log("💧 WATER DATA COMPLETE:", water.length);
+
+        setWaterData(water);
+
+        // -----------------------------
+        // KPI API
+        // -----------------------------
+        console.log("📊 START KPI");
+
+        const kpiData = await getKPIData(filter);
+
+        if (cancelled) return;
+
+        console.log("📊 KPI DATA COMPLETE:", kpiData);
+
+        setKpi({
+          ...kpiData,
+          utilization: kpiData.utilization || {},
         });
+      } catch (error) {
+        if (cancelled) return;
 
-      // -----------------------------
-      // KPI API
-      // -----------------------------
-      getKPIData(filter)
-        .then((kpiData) => {
-          if (cancelled) return;
-
-          console.log("📊 KPI DATA COMPLETE:", kpiData);
-
-          setKpi({
-            ...kpiData,
-            utilization: kpiData.utilization || {},
-          });
-        })
-        .catch((error) => {
-          if (cancelled) return;
-
-          console.error("❌ KPI API error:", error);
-        });
+        console.error("❌ Dashboard API error:", error);
+      }
     }
 
     loadDashboardData();

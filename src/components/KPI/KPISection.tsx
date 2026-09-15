@@ -70,8 +70,14 @@ function KPISection({
 
   useEffect(() => {
     console.log("🎨 KPISection RENDER");
-  console.log("📊 waterData:", waterData.length);
-  console.log("📊 kpi:", kpi);
+    console.log("📊 waterData:", waterData.length);
+    console.log("📊 kpi:", kpi);
+
+    console.log("🚨 KPISection problemSummary:", kpi.problemSummary);
+
+    console.log("🚨 problemLabels:", problemLabels);
+
+    console.log("🚨🚨 problemValues:", problemValues);
   }, [waterData, kpi]);
 
   return (
