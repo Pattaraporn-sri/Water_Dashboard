@@ -69,8 +69,9 @@ function KPISection({
   const problemValues = Object.values(kpi.problemSummary || {});
 
   useEffect(() => {
-    // console.log("water Data:", waterData);
-    // console.log("KPI Data:", kpi);
+    console.log("🎨 KPISection RENDER");
+  console.log("📊 waterData:", waterData.length);
+  console.log("📊 kpi:", kpi);
   }, [waterData, kpi]);
 
   return (

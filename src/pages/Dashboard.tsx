@@ -2,7 +2,6 @@ import FilterBar from "../components/FilterBar/FilterBar";
 import Header from "../components/Header/Header";
 import KPISection from "../components/KPI/KPISection";
 import SummaryTable from "../components/Table/SummaryTable";
-
 import type { SelectedFilter } from "../types/Filter";
 import type { WaterSource } from "../types/Water";
 

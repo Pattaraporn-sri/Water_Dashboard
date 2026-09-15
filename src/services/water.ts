@@ -24,21 +24,42 @@ export async function getWaterData(
   if (filter.type) {
     params.append("type", filter.type);
   }
-  // console.log(params.toString());
+
+  console.log("🚀🚀🚀 WATER API START");
+  console.log("🌐 WATER URL:", `${BASE_URL}?${params.toString()}`);
+
+  const startTime = performance.now();
 
   const response = await fetch(`${BASE_URL}?${params.toString()}`);
 
+  console.log(
+    "📡 WATER API RESPONSE:",
+    ((performance.now() - startTime) / 1000).toFixed(2),
+    "seconds",
+  );
+
   const text = await response.text();
 
-  // console.log("WATER API RESPONSE", text);
-  // console.log(text);
+  console.log(
+    "📦 WATER API TEXT RECEIVED:",
+    ((performance.now() - startTime) / 1000).toFixed(2),
+    "seconds",
+  );
 
   if (!response.ok) {
-    console.log("STATUS =", response.status);
-    console.log("BODY =", text);
+    console.log("❌ WATER STATUS =", response.status);
+    console.log("❌ WATER BODY =", text);
   }
 
-  return JSON.parse(text);
+  const data = JSON.parse(text);
 
-  //   return response.json();
+  console.log(
+    "✅ WATER API COMPLETE:",
+    ((performance.now() - startTime) / 1000).toFixed(2),
+    "seconds",
+  );
+
+  console.log("📊 WATER RECORDS:", data.length);
+
+  return data;
 }

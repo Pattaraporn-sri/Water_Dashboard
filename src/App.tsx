@@ -48,17 +48,53 @@ function App() {
 
   // โหลด Water Data + KPI เมื่อ Filter เปลี่ยน
   useEffect(() => {
-    getWaterData(filter).then((data) => {
-      console.log("FILTER =", filter);
-      setWaterData(data);
-    });
+    let cancelled = false;
 
-    getKPIData(filter).then((data) => {
-      setKpi({
-        ...data,
-        utilization: data.utilization || {},
-      });
-    });
+    async function loadDashboardData() {
+      console.log("🔄 LOAD DASHBOARD DATA", filter);
+
+      // -----------------------------
+      // Water API
+      // -----------------------------
+      getWaterData(filter)
+        .then((water) => {
+          if (cancelled) return;
+
+          console.log("💧 WATER DATA COMPLETE:", water.length);
+          setWaterData(water);
+        })
+        .catch((error) => {
+          if (cancelled) return;
+
+          console.error("❌ Water API error:", error);
+        });
+
+      // -----------------------------
+      // KPI API
+      // -----------------------------
+      getKPIData(filter)
+        .then((kpiData) => {
+          if (cancelled) return;
+
+          console.log("📊 KPI DATA COMPLETE:", kpiData);
+
+          setKpi({
+            ...kpiData,
+            utilization: kpiData.utilization || {},
+          });
+        })
+        .catch((error) => {
+          if (cancelled) return;
+
+          console.error("❌ KPI API error:", error);
+        });
+    }
+
+    loadDashboardData();
+
+    return () => {
+      cancelled = true;
+    };
   }, [filter]);
 
   // เลือกแหล่งน้ำตัวแรกอัตโนมัติ
