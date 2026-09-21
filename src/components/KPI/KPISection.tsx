@@ -3,7 +3,7 @@ import DoughnutChart from "../Charts/DoughnutChart";
 import HorizontalBarChart from "../Charts/HorizontalBarChart";
 import MapView from "../Map/MapView";
 import type { WaterSource } from "../../types/Water";
-import { useEffect } from "react";
+// import { useEffect } from "react";
 import PhotoViewer from "../PhotoViewer/PhotoViewer";
 
 interface KPISectionProps {
