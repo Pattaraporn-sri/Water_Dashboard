@@ -19,8 +19,8 @@ ChartJS.register(
   Title,
   Tooltip,
   Legend,
-  ChartDataLabels,
-);
+    ChartDataLabels,
+  );
 
 interface HorizontalBarChartProps {
   labels: string[];

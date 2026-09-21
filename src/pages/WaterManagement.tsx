@@ -79,6 +79,7 @@ const WaterManagement = () => {
     new Set(projects.map((project) => project.strategy).filter(Boolean)),
   );
 
+  // อ่าน Project Bank
   useEffect(() => {
     const fetchProjectBank = async () => {
       try {
@@ -103,13 +104,14 @@ const WaterManagement = () => {
 
         console.log("BODY =", text);
 
-        const data = await response.json();
+        // ✅ ใช้ body ที่อ่านมาแล้ว
+        const data = JSON.parse(text);
 
-        // console.log("===== PROJECT BANK DATA =====");
-        // console.log(data);
+        console.log("===== PROJECT BANK DATA =====");
+        console.log(data);
 
-        // console.log("IS ARRAY:", Array.isArray(data));
-        // console.log("LENGTH:", data?.length);
+        console.log("IS ARRAY:", Array.isArray(data));
+        console.log("LENGTH:", data?.length);
 
         if (Array.isArray(data)) {
           setProjects(data);

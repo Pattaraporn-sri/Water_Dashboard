@@ -34,18 +34,18 @@ function KPISection({
   selectedWater,
   setSelectedWater,
 }: KPISectionProps) {
-  // ปริมาณกักเก็บน้ำแยกตามประเภทแหล่งน้ำ
-  const storageByType = waterData.reduce(
-    (acc, item) => {
-      const type = item.type || "ไม่ระบุ";
+  // ============================================
+  // ปริมาณกักเก็บน้ำ
+  // ใช้ค่าจาก CK003 / CK004 / CK005 / CK007
+  // ที่ backend ส่งมาใน kpi.storageByType
+  // ============================================
+  const storageLabels = Object.keys(kpi.storageByType || {});
+  const storageValues = Object.values(kpi.storageByType || {});
 
-      acc[type] = (acc[type] || 0) + (Number(item.volume) || 0);
-
-      return acc;
-    },
-    {} as Record<string, number>,
-  );
-
+  // ============================================
+  // จำนวนแหล่งน้ำแยกตามประเภท
+  // ใช้ waterData เพราะเป็นจำนวนแหล่งน้ำจริง
+  // ============================================
   const countByType = waterData.reduce(
     (acc, item) => {
       const type = item.type || "ไม่ระบุ";
@@ -56,9 +56,6 @@ function KPISection({
     },
     {} as Record<string, number>,
   );
-
-  const storageLabels = Object.keys(storageByType);
-  const storageValues = Object.values(storageByType);
 
   // ลักษณะการใช้ประโยชน์
   const labels = Object.keys(kpi.utilization || {});
@@ -73,12 +70,22 @@ function KPISection({
     console.log("📊 waterData:", waterData.length);
     console.log("📊 kpi:", kpi);
 
+    console.log("💧 storageByType:", kpi.storageByType);
+    console.log("💧 storageLabels:", storageLabels);
+    console.log("💧 storageValues:", storageValues);
+    console.log("💧 totalStorage:", kpi.totalStorage);
+
     console.log("🚨 KPISection problemSummary:", kpi.problemSummary);
-
     console.log("🚨 problemLabels:", problemLabels);
-
     console.log("🚨🚨 problemValues:", problemValues);
-  }, [waterData, kpi]);
+  }, [
+    waterData,
+    kpi,
+    storageLabels,
+    storageValues,
+    problemLabels,
+    problemValues,
+  ]);
 
   return (
     <div className="font-kanit px-3 sm:px-5 w-full max-w-full overflow-x-hidden">
@@ -109,9 +116,7 @@ function KPISection({
               </span>
 
               <p className="text-xl sm:text-2xl">
-                {Object.values(storageByType)
-                  .reduce((sum, value) => sum + value, 0)
-                  .toLocaleString()}
+                {kpi.totalStorage.toLocaleString()}
               </p>
             </div>
           </div>

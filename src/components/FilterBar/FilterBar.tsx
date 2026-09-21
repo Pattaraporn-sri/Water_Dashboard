@@ -1,107 +1,137 @@
-import { useState, useEffect } from "react";
-import { BASE_URL } from "../../services/api";
-import type { FilterResponse, FilterBarProps } from "../../types/Filter";
+import type { FilterBarProps } from "../../types/Filter";
+import type { WaterSource } from "../../types/Water";
 
-function FilterBar({ filter, onFilterChange }: FilterBarProps) {
-  const [filters, setFilters] = useState<FilterResponse>({
-    provinces: [],
-    districts: [],
-    subdistricts: [],
-    types: [],
-  });
+interface NewFilterBarProps extends FilterBarProps {
+  waterData: WaterSource[];
+}
 
-  const updateFilter = (p: string, d: string, s: string, t: string) => {
+function FilterBar({ filter, onFilterChange, waterData }: NewFilterBarProps) {
+  const updateFilter = (
+    province: string,
+    district: string,
+    subdistrict: string,
+    type: string,
+  ) => {
     onFilterChange({
-      province: p,
-      district: d,
-      subdistrict: s,
-      type: t,
+      province,
+      district,
+      subdistrict,
+      type,
     });
   };
 
-  useEffect(() => {
-    const params = new URLSearchParams({
-      action: "filter",
-    });
+  // -----------------------------
+  // จังหวัด
+  // -----------------------------
+  const provinces = Array.from(
+    new Set(waterData.map((item) => item.province?.trim()).filter(Boolean)),
+  ).sort((a, b) => a.localeCompare(b, "th"));
 
-    if (filter.province) {
-      params.append("province", filter.province);
-    }
+  // -----------------------------
+  // อำเภอ
+  // -----------------------------
+  const districts = Array.from(
+    new Set(
+      waterData
+        .filter((item) => !filter.province || item.province === filter.province)
+        .map((item) => item.district?.trim())
+        .filter(Boolean),
+    ),
+  ).sort((a, b) => a.localeCompare(b, "th"));
 
-    if (filter.district) {
-      params.append("district", filter.district);
-    }
+  // -----------------------------
+  // ตำบล
+  // -----------------------------
+  const subdistricts = Array.from(
+    new Set(
+      waterData
+        .filter(
+          (item) =>
+            (!filter.province || item.province === filter.province) &&
+            (!filter.district || item.district === filter.district),
+        )
+        .map((item) => item.subdistrict?.trim())
+        .filter(Boolean),
+    ),
+  ).sort((a, b) => a.localeCompare(b, "th"));
 
-    if (filter.subdistrict) {
-      params.append("subdistrict", filter.subdistrict);
-    }
-
-    fetch(`${BASE_URL}?${params.toString()}`)
-      .then((res) => res.json())
-      .then((data: FilterResponse) => {
-        setFilters(data);
-      })
-      .catch((error) => {
-        console.error("โหลด Filter ไม่สำเร็จ:", error);
-      });
-  }, [filter.province, filter.district, filter.subdistrict]);
+  // -----------------------------
+  // ประเภทแหล่งน้ำ
+  // -----------------------------
+  const types = Array.from(
+    new Set(
+      waterData
+        .filter(
+          (item) =>
+            (!filter.province || item.province === filter.province) &&
+            (!filter.district || item.district === filter.district) &&
+            (!filter.subdistrict || item.subdistrict === filter.subdistrict),
+        )
+        .map((item) => item.type?.trim())
+        .filter(Boolean),
+    ),
+  ).sort((a, b) => a.localeCompare(b, "th"));
 
   return (
     <div className="min-w-0 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 font-kanit bg-gradient-to-r from-[#0077b6] to-[#00b4d8] rounded-xl mx-3 sm:mx-5 -mt-7 mb-5 px-4 py-4 relative z-10">
+      {/* จังหวัด */}
       <select
         value={filter.province}
         onChange={(e) => {
           const value = e.target.value;
 
-          updateFilter(value, "", "", filter.type);
+          updateFilter(value, "", "", "");
         }}
         className="h-8 w-full min-w-0 rounded-lg bg-white p-1 border border-gray-300 focus:border-sky-600 focus:ring-2 focus:ring-blue-200 focus:outline-none"
       >
         <option value="">📍 ทุกจังหวัด</option>
 
-        {filters.provinces.map((p) => (
-          <option key={p} value={p}>
-            {p}
+        {provinces.map((province) => (
+          <option key={province} value={province}>
+            {province}
           </option>
         ))}
       </select>
 
+      {/* อำเภอ */}
       <select
         value={filter.district}
         onChange={(e) => {
           const value = e.target.value;
 
-          updateFilter(filter.province, value, "", filter.type);
+          updateFilter(filter.province, value, "", "");
         }}
         className="h-8 w-full min-w-0 rounded-lg bg-white p-1 border border-gray-300 focus:border-sky-600 focus:ring-2 focus:ring-blue-200 focus:outline-none"
       >
         <option value="">📍 ทุกอำเภอ</option>
 
-        {filters.districts.map((d) => (
-          <option key={d} value={d}>
-            {d}
+        {districts.map((district) => (
+          <option key={district} value={district}>
+            {district}
           </option>
         ))}
       </select>
 
+      {/* ตำบล */}
       <select
         value={filter.subdistrict}
         onChange={(e) => {
           const value = e.target.value;
 
-          updateFilter(filter.province, filter.district, value, filter.type);
+          updateFilter(filter.province, filter.district, value, "");
         }}
         className="h-8 w-full min-w-0 rounded-lg bg-white p-1 border border-gray-300 focus:border-sky-600 focus:ring-2 focus:ring-blue-200 focus:outline-none"
       >
         <option value="">📍 ทุกตำบล</option>
 
-        {filters.subdistricts.map((s) => (
-          <option key={s} value={s}>
-            {s}
+        {subdistricts.map((subdistrict) => (
+          <option key={subdistrict} value={subdistrict}>
+            {subdistrict}
           </option>
         ))}
       </select>
 
+      {/* ประเภทแหล่งน้ำ */}
       <select
         value={filter.type}
         onChange={(e) => {
@@ -118,7 +148,7 @@ function FilterBar({ filter, onFilterChange }: FilterBarProps) {
       >
         <option value="">💧 ประเภทแหล่งน้ำทั้งหมด</option>
 
-        {filters.types.map((type) => (
+        {types.map((type) => (
           <option key={type} value={type}>
             {type}
           </option>

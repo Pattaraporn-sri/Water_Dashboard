@@ -4,6 +4,7 @@ import KPISection from "../components/KPI/KPISection";
 import SummaryTable from "../components/Table/SummaryTable";
 import type { SelectedFilter } from "../types/Filter";
 import type { WaterSource } from "../types/Water";
+import type { DashboardData } from "../types/Dashboard";
 
 export const tableColumns = [
   "ลำดับ",
@@ -35,6 +36,8 @@ interface DashboardProps {
 
   selectedWater: WaterSource | null;
   setSelectedWater: React.Dispatch<React.SetStateAction<WaterSource | null>>;
+
+  dashboardData: DashboardData | null;
 }
 
 function Dashboard({
@@ -44,12 +47,17 @@ function Dashboard({
   kpi,
   selectedWater,
   setSelectedWater,
+  dashboardData,
 }: DashboardProps) {
   return (
     <div className="bg-slate-100 w-full min-w-0 font-kanit overflow-x-hidden">
       <Header filter={filter} />
 
-      <FilterBar filter={filter} onFilterChange={setFilter} />
+      <FilterBar
+        filter={filter}
+        onFilterChange={setFilter}
+        waterData={dashboardData?.waterData ?? []}
+      />
 
       <KPISection
         waterData={waterData}
