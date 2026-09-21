@@ -56,11 +56,11 @@ const WaterManagement = () => {
   const district = state?.district || "";
   const subdistrict = state?.subdistrict || "";
 
-  console.log("===== WATER MANAGEMENT STATE =====");
-  console.log("location.state:", location.state);
-  console.log("province:", province);
-  console.log("district:", district);
-  console.log("subdistrict:", subdistrict);
+  // console.log("===== WATER MANAGEMENT STATE =====");
+  // console.log("location.state:", location.state);
+  // console.log("province:", province);
+  // console.log("district:", district);
+  // console.log("subdistrict:", subdistrict);
 
   const filter: SelectedFilter = {
     province,
@@ -71,7 +71,7 @@ const WaterManagement = () => {
 
   // สร้างปีจากข้อมูลโครงการที่ได้รับมา
   const years = Array.from(
-    new Set(projects.map((project) => String(project.year)).filter(Boolean)),
+    new Set(projects.map((project) => String(project.year)).filter(Boolean))
   ).sort((a, b) => Number(b) - Number(a));
 
   // ยุทธ์ศาสตร์การบริหารจัดการทรัพยากรน้ำ 5 ด้าน
@@ -92,26 +92,26 @@ const WaterManagement = () => {
 
         const url = `${BASE_URL}?${params.toString()}`;
 
-        console.log("BASE_URL =", BASE_URL);
-        console.log("PARAMS =", params.toString());
-        console.log("FULL URL =", url);
+        // console.log("BASE_URL =", BASE_URL);
+        // console.log("PARAMS =", params.toString());
+        // console.log("FULL URL =", url);
 
         const response = await fetch(url);
 
-        console.log("STATUS =", response.status);
+        // console.log("STATUS =", response.status);
 
         const text = await response.text();
 
-        console.log("BODY =", text);
+        // console.log("BODY =", text);
 
         // ✅ ใช้ body ที่อ่านมาแล้ว
         const data = JSON.parse(text);
 
-        console.log("===== PROJECT BANK DATA =====");
-        console.log(data);
+        // console.log("===== PROJECT BANK DATA =====");
+        // console.log(data);
 
-        console.log("IS ARRAY:", Array.isArray(data));
-        console.log("LENGTH:", data?.length);
+        // console.log("IS ARRAY:", Array.isArray(data));
+        // console.log("LENGTH:", data?.length);
 
         if (Array.isArray(data)) {
           setProjects(data);

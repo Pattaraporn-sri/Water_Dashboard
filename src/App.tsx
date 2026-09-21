@@ -46,7 +46,7 @@ function App() {
     let cancelled = false;
 
     async function loadDashboard() {
-      console.log("🚀 LOAD DASHBOARD");
+      // console.log("🚀 LOAD DASHBOARD");
 
       try {
         const data = await getDashboardData();
@@ -57,7 +57,7 @@ function App() {
           throw new Error(data.error || "Dashboard API failed");
         }
 
-        console.log("✅ DASHBOARD DATA LOADED", data);
+        // console.log("✅ DASHBOARD DATA LOADED", data);
 
         setDashboardData(data);
       } catch (error) {
