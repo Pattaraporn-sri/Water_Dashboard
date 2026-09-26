@@ -1,4 +1,3 @@
-import { useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { BASE_URL } from "../services/api";
 import BudgetYearFilter from "../components/FilterBar/BudgetYearFilter";
@@ -34,12 +33,6 @@ interface ProjectBank {
   long: number | null;
 }
 
-interface WaterManagementState {
-  province: string;
-  district: string;
-  subdistrict: string;
-}
-
 interface WaterManagementProps {
   filter: SelectedFilter;
   setFilter: React.Dispatch<React.SetStateAction<SelectedFilter>>;
@@ -55,13 +48,10 @@ const WaterManagement = ({
   const [selectedYear, setSelectedYear] = useState("");
   const [searchText, setSearchText] = useState("");
   const [selectedStrategy, setSelectedStrategy] = useState("");
-  const location = useLocation();
   const [selectedProject, setSelectedProject] = useState<ProjectBank | null>(
     null,
   );
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const state = location.state as WaterManagementState | null;
 
   const { province, district, subdistrict } = filter;
   // const province = state?.province || "";

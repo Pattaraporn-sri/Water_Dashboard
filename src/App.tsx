@@ -7,7 +7,6 @@ import type { SelectedFilter } from "./types/Filter";
 import type { WaterSource } from "./types/Water";
 import { getDashboardData } from "./services/api";
 import type { DashboardData } from "./types/Dashboard";
-import FilterBar from "../src/components/FilterBar/FilterBar";
 
 // import { getWaterData } from "./services/water";
 // import { getKPIData } from "./services/kpi";
