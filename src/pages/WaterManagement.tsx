@@ -17,6 +17,9 @@ import type { WaterSource } from "../types/Water";
 import FilterBar from "../components/FilterBar/FilterBar";
 
 interface ProjectBank {
+  province: string;
+  district: string;
+  subdistrict: string;
   no: number | string;
   projectName: string;
   projectDetail: string;
@@ -80,33 +83,15 @@ const WaterManagement = ({
       try {
         const params = new URLSearchParams({
           action: "projectBank",
-          province,
-          district,
-          subdistrict,
         });
 
         const url = `${BASE_URL}?${params.toString()}`;
 
-        // console.log("BASE_URL =", BASE_URL);
-        // console.log("PARAMS =", params.toString());
-        // console.log("FULL URL =", url);
-
         const response = await fetch(url);
-
-        // console.log("STATUS =", response.status);
 
         const text = await response.text();
 
-        // console.log("BODY =", text);
-
-        // ✅ ใช้ body ที่อ่านมาแล้ว
         const data = JSON.parse(text);
-
-        // console.log("===== PROJECT BANK DATA =====");
-        // console.log(data);
-
-        // console.log("IS ARRAY:", Array.isArray(data));
-        // console.log("LENGTH:", data?.length);
 
         if (Array.isArray(data)) {
           setProjects(data);
@@ -121,10 +106,17 @@ const WaterManagement = ({
     };
 
     fetchProjectBank();
-  }, [province, district, subdistrict]);
+  }, []);
 
   // Filter
   const filteredProjects = projects.filter((project) => {
+    const matchProvince = !province || project.province === province;
+
+    const matchDistrict = !district || project.district === district;
+
+    const matchSubdistrict =
+      !subdistrict || project.subdistrict === subdistrict;
+
     const matchYear = selectedYear
       ? String(project.year) === selectedYear
       : true;
@@ -141,19 +133,13 @@ const WaterManagement = ({
         project.responsibleAgency?.toLowerCase().includes(search)
       : true;
 
-    return matchYear && matchStrategy && matchSearch;
-  });
-
-  //ช่อง search
-  const searchProjects = filteredProjects.filter((project) => {
-    const search = searchText.toLowerCase().trim();
-
-    if (!search) return true;
-
     return (
-      project.projectName.toLowerCase().includes(search) ||
-      project.villageNo.toString().toLowerCase().includes(search) ||
-      project.responsibleAgency?.toLowerCase().includes(search)
+      matchProvince &&
+      matchDistrict &&
+      matchSubdistrict &&
+      matchYear &&
+      matchStrategy &&
+      matchSearch
     );
   });
 
@@ -265,7 +251,7 @@ const WaterManagement = ({
       {/* ตารางรายละเอียดโครงการ */}
       <div>
         <ProjectTable
-          projects={searchProjects}
+          projects={filteredProjects}
           searchText={searchText}
           onSearch={setSearchText}
           strategies={strategies}

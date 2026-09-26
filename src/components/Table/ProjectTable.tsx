@@ -5,6 +5,9 @@ import { EyeOutlined } from "@ant-design/icons";
 import search from "../../assets/search.png";
 
 interface Project {
+  province: string;
+  district: string;
+  subdistrict: string;
   waterSource: string;
   strategy: string;
   no: number | string;
