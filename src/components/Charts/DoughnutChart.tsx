@@ -22,6 +22,7 @@ const colors = [
   "#ca6702",
   "#bb3e03",
   "#ae2012",
+  "#6a994e",
 ];
 
 const DoughnutChart = ({

@@ -61,6 +61,7 @@ function Dashboard({
 
       <KPISection
         waterData={waterData}
+        filter={filter}
         kpi={kpi}
         selectedWater={selectedWater}
         setSelectedWater={setSelectedWater}

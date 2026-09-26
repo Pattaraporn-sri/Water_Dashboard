@@ -4,20 +4,20 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import type { WaterSource } from "../../types/Water";
 import "../Map/Map.css";
 import MapLayer from "../../assets/layers.png";
-// import type { TambonGeoJSON } from "../../types/GeoJSON";
 import tambonBoundaryUrl from "../../assets/tambon_boundary.geojson?url";
+import type { SelectedFilter } from "../../types/Filter";
 
 interface MapViewProps {
   data: WaterSource[];
+  filter: SelectedFilter;
   onMarkerClick?: (item: WaterSource) => void;
 }
 
-const MapView = ({ data, onMarkerClick }: MapViewProps) => {
+const MapView = ({ data, filter, onMarkerClick }: MapViewProps) => {
   const mapContainer = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const markersRef = useRef<maplibregl.Marker[]>([]);
   const popupRef = useRef<maplibregl.Popup | null>(null);
-  const isFirstDataLoad = useRef(true);
   const [showBasemapMenu, setShowBasemapMenu] = useState(false);
   const [basemap, setBasemap] = useState<keyof typeof BASEMAPS>("Satellite");
   const MAPTILER_KEY = import.meta.env.VITE_MAPTILER_KEY;
@@ -224,25 +224,23 @@ const MapView = ({ data, onMarkerClick }: MapViewProps) => {
         onMarkerClick?.(item);
       });
     });
+  }, [data]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+
+    if (!map || data.length === 0) return;
+
+    const zoomToFilteredData = () => {
+      fitToMarkers(map, data);
+    };
 
     if (map.isStyleLoaded()) {
-      const savedView = getSavedMapView();
-
-      // ถ้ามีตำแหน่งเดิมอยู่แล้ว
-      // แปลว่าเรากลับเข้าหน้า Dashboard
-      // ไม่ต้อง zoom ใหม่
-      if (isFirstDataLoad.current) {
-        if (!savedView) {
-          fitToMarkers(map, data);
-        }
-
-        isFirstDataLoad.current = false;
-      } else {
-        // กรณีข้อมูลเปลี่ยนจากการเปลี่ยน Filter
-        fitToMarkers(map, data);
-      }
+      zoomToFilteredData();
+    } else {
+      map.once("load", zoomToFilteredData);
     }
-  }, [data]);
+  }, [filter.province, filter.district, filter.subdistrict, filter.type, data]);
 
   return (
     <div className="relative w-full h-full min-w-0">

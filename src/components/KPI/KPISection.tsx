@@ -3,11 +3,12 @@ import DoughnutChart from "../Charts/DoughnutChart";
 import HorizontalBarChart from "../Charts/HorizontalBarChart";
 import MapView from "../Map/MapView";
 import type { WaterSource } from "../../types/Water";
-// import { useEffect } from "react";
 import PhotoViewer from "../PhotoViewer/PhotoViewer";
+import type { SelectedFilter } from "../../types/Filter";
 
 interface KPISectionProps {
   waterData: WaterSource[];
+  filter: SelectedFilter;
   kpi: {
     utilization: {
       [key: string]: number;
@@ -30,6 +31,7 @@ interface KPISectionProps {
 
 function KPISection({
   waterData,
+  filter,
   kpi,
   selectedWater,
   setSelectedWater,
@@ -45,17 +47,44 @@ function KPISection({
   // ============================================
   // จำนวนแหล่งน้ำแยกตามประเภท
   // ใช้ waterData เพราะเป็นจำนวนแหล่งน้ำจริง
+  // รองรับข้อมูลที่มีหลายประเภทในแถวเดียว
   // ============================================
-  const countByType = waterData.reduce(
-    (acc, item) => {
-      const type = item.type || "ไม่ระบุ";
 
-      acc[type] = (acc[type] || 0) + 1;
+  const WATER_TYPES = [
+    "บ่อน้ำตื้น/บ่อตอก/บ่อวง",
+    "บ่อบาดาล/บ่อโยก",
+    "หนอง/บึง/กุด",
+    "อ่างเก็บน้ำ",
+    "เขื่อน",
+    "อาคารชลศาสตร์",
+    "สระน้ำ/บ่อน้ำ/แก้มลิง (มนุษย์สร้าง)",
+    "พรุ/ทะเลสาบ/บ่อน้ำ",
+    "ลำห้วย/คลอง/ลำประโดง/ลำธาร/แม่น้ำ/เหมืองดิน",
+    "ระบบประปาหมู่บ้าน",
+  ];
 
+  const countByType = WATER_TYPES.reduce(
+    (acc, type) => {
+      acc[type] = 0;
       return acc;
     },
     {} as Record<string, number>,
   );
+
+  waterData.forEach((item) => {
+    if (!item.type) return;
+
+    const rowTypes = item.type
+      .split(",")
+      .map((type) => type.trim())
+      .filter(Boolean);
+
+    rowTypes.forEach((type) => {
+      if (WATER_TYPES.includes(type)) {
+        countByType[type] += 1;
+      }
+    });
+  });
 
   // ลักษณะการใช้ประโยชน์
   const labels = Object.keys(kpi.utilization || {});
@@ -93,7 +122,11 @@ function KPISection({
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.75fr)]">
         {/* Map */}
         <div className="rounded-xl shadow-lg overflow-hidden h-[320px] sm:h-[420px] lg:h-[490px] w-full max-w-full">
-          <MapView data={waterData} onMarkerClick={setSelectedWater} />
+          <MapView
+            data={waterData}
+            filter={filter}
+            onMarkerClick={setSelectedWater}
+          />
         </div>
 
         {/* Right side */}

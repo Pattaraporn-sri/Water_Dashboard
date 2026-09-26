@@ -58,19 +58,36 @@ function FilterBar({ filter, onFilterChange, waterData }: NewFilterBarProps) {
   // -----------------------------
   // ประเภทแหล่งน้ำ
   // -----------------------------
-  const types = Array.from(
-    new Set(
-      waterData
-        .filter(
-          (item) =>
-            (!filter.province || item.province === filter.province) &&
-            (!filter.district || item.district === filter.district) &&
-            (!filter.subdistrict || item.subdistrict === filter.subdistrict),
-        )
-        .map((item) => item.type?.trim())
-        .filter(Boolean),
-    ),
-  ).sort((a, b) => a.localeCompare(b, "th"));
+  // -----------------------------
+  // ประเภทแหล่งน้ำ
+  // -----------------------------
+
+  const types = [
+    "บ่อน้ำตื้น/บ่อตอก/บ่อวง",
+    "บ่อบาดาล/บ่อโยก",
+    "หนอง/บึง/กุด",
+    "อ่างเก็บน้ำ",
+    "เขื่อน",
+    "อาคารชลศาสตร์",
+    "สระน้ำ/บ่อน้ำ/แก้มลิง (มนุษย์สร้าง)",
+    "พรุ/ทะเลสาบ/บ่อน้ำ",
+    "ลำห้วย/คลอง/ลำประโดง/ลำธาร/แม่น้ำ/เหมืองดิน",
+    "ระบบประปาหมู่บ้าน",
+  ];
+  
+  // const types = Array.from(
+  //   new Set(
+  //     waterData
+  //       .filter(
+  //         (item) =>
+  //           (!filter.province || item.province === filter.province) &&
+  //           (!filter.district || item.district === filter.district) &&
+  //           (!filter.subdistrict || item.subdistrict === filter.subdistrict),
+  //       )
+  //       .map((item) => item.type?.trim())
+  //       .filter(Boolean),
+  //   ),
+  // ).sort((a, b) => a.localeCompare(b, "th"));
 
   return (
     <div className="min-w-0 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 font-kanit bg-gradient-to-r from-[#0077b6] to-[#00b4d8] rounded-xl mx-3 sm:mx-5 -mt-7 mb-5 px-4 py-4 relative z-10">

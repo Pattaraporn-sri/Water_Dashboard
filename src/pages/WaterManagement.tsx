@@ -11,12 +11,11 @@ import strategy from "../assets/strategy.png";
 import village from "../assets/village.png";
 import water from "../assets/sea.png";
 import projectDetail from "../assets/project.png";
-import loocation from "../assets/location.png";
-import target from "../assets/target.png";
-import calender from "../assets/calendar.png";
-import strategy_modal from "../assets/pie-chart.png";
 import ProjectTable from "../components/Table/ProjectTable";
 import { Modal } from "antd";
+import StrategyFilter from "../components/FilterBar/StrategyFilter";
+import type { WaterSource } from "../types/Water";
+import FilterBar from "../components/FilterBar/FilterBar";
 
 interface ProjectBank {
   no: number | string;
@@ -31,6 +30,8 @@ interface ProjectBank {
   villageNo: number | string;
   villageName: string;
   waterSource: string;
+  lat: number | null;
+  long: number | null;
 }
 
 interface WaterManagementState {
@@ -39,7 +40,17 @@ interface WaterManagementState {
   subdistrict: string;
 }
 
-const WaterManagement = () => {
+interface WaterManagementProps {
+  filter: SelectedFilter;
+  setFilter: React.Dispatch<React.SetStateAction<SelectedFilter>>;
+  waterData: WaterSource[];
+}
+
+const WaterManagement = ({
+  filter,
+  setFilter,
+  waterData,
+}: WaterManagementProps) => {
   const [projects, setProjects] = useState<ProjectBank[]>([]);
   const [selectedYear, setSelectedYear] = useState("");
   const [searchText, setSearchText] = useState("");
@@ -52,9 +63,10 @@ const WaterManagement = () => {
 
   const state = location.state as WaterManagementState | null;
 
-  const province = state?.province || "";
-  const district = state?.district || "";
-  const subdistrict = state?.subdistrict || "";
+  const { province, district, subdistrict } = filter;
+  // const province = state?.province || "";
+  // const district = state?.district || "";
+  // const subdistrict = state?.subdistrict || "";
 
   // console.log("===== WATER MANAGEMENT STATE =====");
   // console.log("location.state:", location.state);
@@ -62,16 +74,9 @@ const WaterManagement = () => {
   // console.log("district:", district);
   // console.log("subdistrict:", subdistrict);
 
-  const filter: SelectedFilter = {
-    province,
-    district,
-    subdistrict,
-    type: "",
-  };
-
   // สร้างปีจากข้อมูลโครงการที่ได้รับมา
   const years = Array.from(
-    new Set(projects.map((project) => String(project.year)).filter(Boolean))
+    new Set(projects.map((project) => String(project.year)).filter(Boolean)),
   ).sort((a, b) => Number(b) - Number(a));
 
   // ยุทธ์ศาสตร์การบริหารจัดการทรัพยากรน้ำ 5 ด้าน
@@ -180,9 +185,14 @@ const WaterManagement = () => {
   return (
     <div className="font-kanit bg-slate-100 w-full min-w-0 overflow-x-hidden">
       <Header filter={filter} />
+      <FilterBar
+        filter={filter}
+        onFilterChange={setFilter}
+        waterData={waterData}
+      />
 
       <div className="flex justify-between">
-        <div className="flex gap-2 mt-5 ml-5 text-2xl">
+        <div className="flex gap-2 ml-5 text-2xl">
           {filter.subdistrict && <p>ตำบล{filter.subdistrict}</p>}
 
           {filter.district && <p>อำเภอ{filter.district}</p>}
@@ -195,11 +205,17 @@ const WaterManagement = () => {
         </div>
 
         {/* filter ปีงบประมาณ */}
-        <div className="flex gap-2 mr-5 mt-5">
+        <div className="flex gap-2 mr-5">
           <BudgetYearFilter
             years={years}
             selectedYear={selectedYear}
             onChange={setSelectedYear}
+          />
+          {/* filter ยุทธศาสตร์ */}
+          <StrategyFilter
+            strategies={strategies}
+            selectedStrategy={selectedStrategy}
+            onStrategyChange={setSelectedStrategy}
           />
         </div>
       </div>
@@ -215,7 +231,6 @@ const WaterManagement = () => {
         <div className="bg-gradient-to-br from-[#5196bc] to-[#024193] p-5 mt-4 rounded-lg w-60 shadow-lg text-white">
           <p className="text-sm">งบประมาณ</p>
           <p className="font-bold text-2xl flex justify-center">
-            {" "}
             {totalBudget.toLocaleString()} บาท
           </p>
         </div>
@@ -240,7 +255,7 @@ const WaterManagement = () => {
           <div className="flex">
             <img src={village} alt="Village" className="w-8 h-8 ml-2" />
             <p className="font-bold text-xl text-[#023e8a] ml-2 mb-2">
-              จำนวโครงการตามหมู่บ้าน
+              จำนวนโครงการตามหมู่บ้าน
             </p>
           </div>
 
@@ -259,9 +274,6 @@ const WaterManagement = () => {
       </div>
       {/* ตารางรายละเอียดโครงการ */}
       <div>
-        {/* <p className="font-bold text-2xl p-4 mt-3 text-[#023e8a]">
-          รายละเอียดโครงการ
-        </p> */}
         <ProjectTable
           projects={searchProjects}
           searchText={searchText}
@@ -296,45 +308,22 @@ const WaterManagement = () => {
               <hr className="text-neutral-400 mb-2 mt-2 w-[450px]" />
               {/* ยุทธศาสตร์ */}
               <p className="text-xl mt-1">{selectedProject.projectName}</p>
-              <p>{selectedProject.projectDetail}</p>
+              <p className="mt-1">{selectedProject.projectDetail}</p>
 
-              <div className="flex mt-1 mb-1">
-                <img src={loocation} alt="location" className="w-6 h-6" />
-                <p className="ml-2 mt-1">
-                  {" "}
-                  หมู่ที่ : {selectedProject.villageNo}
-                </p>
-                <p className="ml-2 mt-1">
-                  หมู่บ้าน : {selectedProject.villageName}
-                </p>
+              <div className="grid grid-cols-5 mt-1 mb-1">
+                <p>หมู่ที่ : {selectedProject.villageNo}</p>
+                <p>หมู่บ้าน : {selectedProject.villageName}</p>
               </div>
 
-              <div className="flex mt-1 mb-1">
-                <img src={target} className="w-6 h-6" />
-                <p className="mt-1 ml-2">{selectedProject.strategy}</p>
-              </div>
-
-              <div className="flex">
-                <img src={calender} className="w-6 h-6" />
-                <p className="ml-2 mt-1">ปีงบประมาณ : {selectedProject.year}</p>
-              </div>
-
-              <div className="flex">
-                <img
-                  src={strategy_modal}
-                  alt="strategy_modal"
-                  className="mt-1 w-5 h-5"
-                />
-                <p className="ml-2 mt-1">
-                  งบประมาณ : {selectedProject.budget.toLocaleString()} บาท
-                </p>
+              <div>{selectedProject.strategy}</div>
+              <div>ปีงบประมาณ : {selectedProject.year}</div>
+              <div>
+                งบประมาณ : {selectedProject.budget.toLocaleString()} บาท
               </div>
 
               <p> ประโยชน์ที่ได้รับ : {selectedProject.benefit}</p>
               <p> ดำเนินการ: {selectedProject.responsibleAgency}</p>
               <p> หน่วยงานที่สนับสนุน : {selectedProject.supportingAgency}</p>
-              {/* <p> แหล่งน้ำ : {selectedProject.waterSource}</p> */}
-              <p> </p>
             </div>
           )}
         </Modal>

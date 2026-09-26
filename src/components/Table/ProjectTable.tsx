@@ -1,5 +1,5 @@
 import { Button, Table } from "antd";
-import { Input, Select } from "antd";
+import { Input } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { EyeOutlined } from "@ant-design/icons";
 import search from "../../assets/search.png";
@@ -12,6 +12,10 @@ interface Project {
   projectDetail: string;
   villageNo: number | string;
   villageName: string;
+
+  lat: number | null;
+  long: number | null;
+
   year: number;
   budget: number;
   benefit: string;
@@ -33,14 +37,11 @@ function ProjectTable({
   projects,
   searchText,
   onSearch,
-  strategies,
-  selectedStrategy,
-  onStrategyChange,
   onOpenDetail,
 }: ProjectTableProps) {
   //หัวตาราง
   const headerClassName =
-    "!bg-[#023e8a] !text-base !text-white !font-bold !font-[Kanit]";
+    "!bg-[#023e8a] !text-lg !text-white !font-bold !font-[Kanit]";
 
   // รายละเอียดคอลัมม์
   const columns: ColumnsType<Project> = [
@@ -48,7 +49,7 @@ function ProjectTable({
       title: "ลำดับ",
       dataIndex: "no",
       key: "no",
-      width: 20,
+      width: 10,
       align: "center" as const,
       onHeaderCell: () => ({
         className: headerClassName,
@@ -58,7 +59,7 @@ function ProjectTable({
       title: "ชื่อแผนงาน/โครงการ",
       dataIndex: "projectName",
       key: "projectName",
-      width: 220,
+      width: 250,
       align: "center" as const,
       onHeaderCell: () => ({
         className: headerClassName,
@@ -95,10 +96,30 @@ function ProjectTable({
       }),
     },
     {
+      title: "latitude",
+      dataIndex: "lat",
+      key: "lat",
+      width: 90,
+      align: "center" as const,
+      onHeaderCell: () => ({
+        className: headerClassName,
+      }),
+    },
+    {
+      title: "longtitude",
+      dataIndex: "long",
+      key: "long",
+      width: 90,
+      align: "center" as const,
+      onHeaderCell: () => ({
+        className: headerClassName,
+      }),
+    },
+    {
       title: "ปีดำเนินการ",
       dataIndex: "year",
       key: "year",
-      width: 90,
+      width: 120,
       align: "center" as const,
       onHeaderCell: () => ({
         className: headerClassName,
@@ -119,7 +140,7 @@ function ProjectTable({
       title: "ประโยชน์ที่คาดว่าจะได้รับ",
       dataIndex: "benefit",
       key: "benefit",
-      width: 150,
+      width: 250,
       onHeaderCell: () => ({
         className: headerClassName,
       }),
@@ -138,7 +159,7 @@ function ProjectTable({
       title: "ขอรับการสนับสนุน",
       dataIndex: "supportingAgency",
       key: "supportingAgency",
-      width: 120,
+      width: 150,
       align: "center" as const,
       onHeaderCell: () => ({
         className: headerClassName,
@@ -189,32 +210,7 @@ function ProjectTable({
             onChange={(e) => onSearch(e.target.value)}
             className="w-full h-8 max-w-md [&_.ant-input]:font-[Kanit]"
           />
-          <Select
-            value={selectedStrategy || undefined}
-            onChange={onStrategyChange}
-            allowClear
-            placeholder="เลือกยุทธศาสตร์"
-            style={{ width: 200, fontFamily: "Kanit" }}
-            className="
-                w-full h-8 sm:w-[250px] ml-3 
-                [&_.ant-select-selection-placeholder]:!font-[Kanit]
-            "
-            classNames={{
-              popup: {
-                root: "font-[Kanit]",
-              },
-            }}
-            options={[
-              {
-                label: "ทุกยุทธศาสตร์",
-                value: "",
-              },
-              ...strategies.map((strategy) => ({
-                label: strategy,
-                value: strategy,
-              })),
-            ]}
-          />
+        
         </div>
       </div>
 
