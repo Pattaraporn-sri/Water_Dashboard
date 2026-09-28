@@ -15,6 +15,7 @@ import { Modal } from "antd";
 import StrategyFilter from "../components/FilterBar/StrategyFilter";
 import type { WaterSource } from "../types/Water";
 import FilterBar from "../components/FilterBar/FilterBar";
+import ProjectMap from "../components/Map/ProjectMap";
 
 interface ProjectBank {
   province: string;
@@ -57,15 +58,6 @@ const WaterManagement = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { province, district, subdistrict } = filter;
-  // const province = state?.province || "";
-  // const district = state?.district || "";
-  // const subdistrict = state?.subdistrict || "";
-
-  // console.log("===== WATER MANAGEMENT STATE =====");
-  // console.log("location.state:", location.state);
-  // console.log("province:", province);
-  // console.log("district:", district);
-  // console.log("subdistrict:", subdistrict);
 
   // สร้างปีจากข้อมูลโครงการที่ได้รับมา
   const years = Array.from(
@@ -142,6 +134,15 @@ const WaterManagement = ({
       matchSearch
     );
   });
+
+  // หมุดโครงการ
+  const projectsWithCoordinates = filteredProjects.filter(
+    (project) =>
+      project.lat !== null &&
+      project.long !== null &&
+      !isNaN(Number(project.lat)) &&
+      !isNaN(Number(project.long)),
+  );
 
   // KPI จำนวนโครงการ
   const projectCount = filteredProjects.length;
@@ -237,17 +238,21 @@ const WaterManagement = ({
 
           <VillageProjectChart projects={filteredProjects} />
         </div>
-        {/* กราฟ Horizontal แสดงหน่วยงานที่รับผิดชอบ */}
+
+        {/* แผนที่โครงการ */}
         <div className="bg-white rounded-xl p-4 shadow-lg w-[485px] h-[320px]">
-          <div className="flex">
-            <img src={water} alt="Water" className="w-7 h-7 ml-2" />
-            <p className="font-bold text-xl text-[#023e8a] ml-2 mb-3">
-              แหล่งน้ำ
+          <div className="flex items-center mb-3">
+            <p className="font-bold text-xl text-[#023e8a] ml-2">
+              แผนที่โครงการ
             </p>
           </div>
-          <WaterSourceChart projects={filteredProjects} />
+
+          <div className="h-[255px]">
+            <ProjectMap projects={projectsWithCoordinates} />
+          </div>
         </div>
       </div>
+
       {/* ตารางรายละเอียดโครงการ */}
       <div>
         <ProjectTable
