@@ -5,12 +5,9 @@ import Dashboard from "./pages/Dashboard";
 import WaterManagement from "./pages/WaterManagement";
 import type { SelectedFilter } from "./types/Filter";
 import type { WaterSource } from "./types/Water";
-import { getDashboardData } from "./services/api";
 import type { DashboardData } from "./types/Dashboard";
-
-// import { getWaterData } from "./services/water";
-// import { getKPIData } from "./services/kpi";
-// import { getFilterData } from "./services/api";
+import { getWaterSourcesFromSupabase } from "./services/supabaseService";
+import { getDashboardDataFromSupabase } from "./services/supabaseService";
 
 function App() {
   const [filter, setFilter] = useState<SelectedFilter>({
@@ -47,18 +44,14 @@ function App() {
     let cancelled = false;
 
     async function loadDashboard() {
-      // console.log("🚀 LOAD DASHBOARD");
-
       try {
-        const data = await getDashboardData();
+        const data = await getDashboardDataFromSupabase();
 
         if (cancelled) return;
 
         if (!data.success) {
           throw new Error(data.error || "Dashboard API failed");
         }
-
-        // console.log("✅ DASHBOARD DATA LOADED", data);
 
         setDashboardData(data);
       } catch (error) {
@@ -225,23 +218,16 @@ function App() {
     setWaterData(filteredWaterData);
   }, [filteredWaterData]);
 
-  // useEffect(() => {
-  //   async function testDashboard() {
-  //     try {
-  //       const data = await getDashboardData();
-
-  //       console.log("✅ DASHBOARD DATA =", data);
-  //       console.log("💧 waterData =", data.waterData?.length);
-  //       console.log("🚨 problemSummaryData =", data.problemSummaryData?.length);
-  //       console.log("💧 storageSummaryData =", data.storageSummaryData?.length);
-  //       console.log("🔎 filterOptions =", data.filterOptions);
-  //     } catch (error) {
-  //       console.error("❌ DASHBOARD LOAD FAILED", error);
-  //     }
-  //   }
-
-  //   testDashboard();
-  // }, []);
+  useEffect(() => {
+    getWaterSourcesFromSupabase()
+      .then((data) => {
+        console.log("🌊 Supabase water sources:", data);
+        console.log("📊 Total records:", data.length);
+      })
+      .catch((error) => {
+        console.error("❌ Failed to load Supabase data:", error);
+      });
+  }, []);
 
   return (
     <BrowserRouter>

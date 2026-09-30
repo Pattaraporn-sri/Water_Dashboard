@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { BASE_URL } from "../services/api";
+// import { BASE_URL } from "../services/api";
 import BudgetYearFilter from "../components/FilterBar/BudgetYearFilter";
 import Header from "../components/Header/Header";
 import type { SelectedFilter } from "../types/Filter";
@@ -12,6 +12,7 @@ import StrategyFilter from "../components/FilterBar/StrategyFilter";
 import type { WaterSource } from "../types/Water";
 import FilterBar from "../components/FilterBar/FilterBar";
 import ProjectMap from "../components/Map/ProjectMap";
+import { getProjectBankFromSupabase } from "../services/supabaseService";
 
 interface ProjectBank {
   province: string;
@@ -66,29 +67,76 @@ const WaterManagement = ({
   );
 
   // อ่าน Project Bank
+  // useEffect(() => {
+  //   const fetchProjectBank = async () => {
+  //     try {
+  //       const params = new URLSearchParams({
+  //         action: "projectBank",
+  //       });
+
+  //       const url = `${BASE_URL}?${params.toString()}`;
+
+  //       const response = await fetch(url);
+
+  //       const text = await response.text();
+
+  //       const data = JSON.parse(text);
+
+  //       if (Array.isArray(data)) {
+  //         setProjects(data);
+  //       } else {
+  //         console.error("ข้อมูลไม่ใช่ Array:", data);
+  //         setProjects([]);
+  //       }
+  //     } catch (error) {
+  //       console.error("โหลด Project Bank ไม่สำเร็จ:", error);
+  //       setProjects([]);
+  //     }
+  //   };
+
+  //   fetchProjectBank();
+  // }, []);
+
   useEffect(() => {
     const fetchProjectBank = async () => {
       try {
-        const params = new URLSearchParams({
-          action: "projectBank",
-        });
+        const data = await getProjectBankFromSupabase();
 
-        const url = `${BASE_URL}?${params.toString()}`;
+        const mappedProjects: ProjectBank[] = data.map((item) => ({
+          province: item.province ?? "",
+          district: item.district ?? "",
+          subdistrict: item.subdistrict ?? "",
 
-        const response = await fetch(url);
+          no: item.no ?? "",
 
-        const text = await response.text();
+          projectName: item.project_name ?? "",
+          projectDetail: item.project_detail ?? "",
 
-        const data = JSON.parse(text);
+          responsibleAgency: item.responsible_agency ?? "",
+          supportingAgency: item.supporting_agency ?? "",
 
-        if (Array.isArray(data)) {
-          setProjects(data);
-        } else {
-          console.error("ข้อมูลไม่ใช่ Array:", data);
-          setProjects([]);
-        }
+          budget: Number(item.budget ?? 0),
+          year: Number(item.year ?? 0),
+
+          strategy: item.strategy ?? "",
+          benefit: item.benefit ?? "",
+
+          villageNo: item.village_no ?? "",
+          villageName: item.village_name ?? "",
+
+          waterSource: item.water_source ?? "",
+
+          lat: item.lat !== null ? Number(item.lat) : null,
+          long: item.lng !== null ? Number(item.lng) : null,
+        }));
+
+        setProjects(mappedProjects);
+
+        console.log(
+          `✅ โหลด Project Bank จาก Supabase สำเร็จ: ${mappedProjects.length} records`,
+        );
       } catch (error) {
-        console.error("โหลด Project Bank ไม่สำเร็จ:", error);
+        console.error("❌ โหลด Project Bank จาก Supabase ไม่สำเร็จ:", error);
         setProjects([]);
       }
     };
