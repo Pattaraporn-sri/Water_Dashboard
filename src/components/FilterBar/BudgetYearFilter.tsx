@@ -14,10 +14,14 @@ const BudgetYearFilter = ({
   return (
     <Select
       value={selectedYear || undefined}
-      placeholder="เลือกปีงบประมาณ"
+      placeholder={<div className="text-slate-600">ปีงบประมาณ</div>}
       allowClear
-      style={{ width: 200, fontFamily: "Kanit" }}
+      style={{ width: 390, fontFamily: "Kanit" }}
       onChange={(value) => onChange(value || "")}
+      className="
+                w-full h-8 sm:w-[250px] ml-3 
+                [&_.ant-select-selection-placeholder]:!font-[Kanit]
+            "
       classNames={{
         popup: {
           root: "font-[Kanit]",

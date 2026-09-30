@@ -16,10 +16,10 @@ const StrategyFilter = ({
       value={selectedStrategy || undefined}
       onChange={onStrategyChange}
       allowClear
-      placeholder="เลือกยุทธศาสตร์"
-      style={{ width: 200, fontFamily: "Kanit" }}
+      placeholder={<div className="text-slate-600"> ยุทธศาสตร์ </div>}
+      style={{ width: 400, fontFamily: "Kanit"}}
       className="
-                w-full h-8 sm:w-[250px] ml-3 
+                w-full h-8 sm:w-[250px]
                 [&_.ant-select-selection-placeholder]:!font-[Kanit]
             "
       classNames={{

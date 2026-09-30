@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import MapLayer from "../../assets/layers.png";
+import tambonBoundaryUrl from "../../assets/tambon_boundary.geojson?url";
 
 interface ProjectBank {
   province: string;
@@ -34,8 +35,7 @@ const ProjectMap = ({ projects }: ProjectMapProps) => {
   const popupRef = useRef<maplibregl.Popup | null>(null);
 
   const [showBasemapMenu, setShowBasemapMenu] = useState(false);
-  const [basemap, setBasemap] =
-    useState<keyof typeof BASEMAPS>("Satellite");
+  const [basemap, setBasemap] = useState<keyof typeof BASEMAPS>("Satellite");
 
   const MAPTILER_KEY = import.meta.env.VITE_MAPTILER_KEY;
 
@@ -45,10 +45,7 @@ const ProjectMap = ({ projects }: ProjectMapProps) => {
   };
 
   // Zoom ให้เห็นโครงการทั้งหมด
-  const fitToProjects = (
-    map: maplibregl.Map,
-    projectData: ProjectBank[],
-  ) => {
+  const fitToProjects = (map: maplibregl.Map, projectData: ProjectBank[]) => {
     if (projectData.length === 0) return;
 
     const bounds = new maplibregl.LngLatBounds();
@@ -78,7 +75,13 @@ const ProjectMap = ({ projects }: ProjectMapProps) => {
   const changeBasemap = (type: keyof typeof BASEMAPS) => {
     if (!mapRef.current) return;
 
-    mapRef.current.setStyle(BASEMAPS[type]);
+    const map = mapRef.current;
+
+    map.once("style.load", () => {
+      addBoundaryLayers(map);
+    });
+
+    map.setStyle(BASEMAPS[type]);
     setBasemap(type);
   };
 
@@ -95,15 +98,13 @@ const ProjectMap = ({ projects }: ProjectMapProps) => {
       zoom: 7,
     });
 
-    map.addControl(
-      new maplibregl.NavigationControl(),
-      "top-right",
-    );
+    map.addControl(new maplibregl.NavigationControl(), "top-right");
 
-    map.addControl(
-      new maplibregl.FullscreenControl(),
-      "top-right",
-    );
+    map.addControl(new maplibregl.FullscreenControl(), "top-right");
+
+    map.on("load", () => {
+      addBoundaryLayers(map);
+    });
 
     mapRef.current = map;
 
@@ -134,6 +135,35 @@ const ProjectMap = ({ projects }: ProjectMapProps) => {
     };
   }, []);
 
+  const addBoundaryLayers = (map: maplibregl.Map) => {
+    if (map.getSource("project-tambon-boundary")) return; // กันซ้ำ
+
+    map.addSource("project-tambon-boundary", {
+      type: "geojson",
+      data: tambonBoundaryUrl,
+    });
+
+    map.addLayer({
+      id: "project-tambon-fill",
+      type: "fill",
+      source: "project-tambon-boundary",
+      paint: {
+        "fill-color": "#E60026",
+        "fill-opacity": 0.1,
+      },
+    });
+
+    map.addLayer({
+      id: "project-tambon-outline",
+      type: "line",
+      source: "project-tambon-boundary",
+      paint: {
+        "line-color": "#FF2400",
+        "line-width": 3,
+      },
+    });
+  };
+
   // สร้าง Marker
   useEffect(() => {
     const map = mapRef.current;
@@ -162,27 +192,44 @@ const ProjectMap = ({ projects }: ProjectMapProps) => {
         offset: 25,
         closeButton: true,
         closeOnClick: true,
+        maxWidth: "600px",
+        className: "project-popup",
       }).setHTML(`
         <div style="
           font-family: Kanit, sans-serif;
-          min-width: 220px;
         ">
           <h3 style="
             margin: 0 0 8px;
             font-size: 16px;
             font-weight: 600;
-            color: #023e8a;
+            color: #0077b6;
             line-height: 1.4;
           ">
             ${project.projectName || "ไม่ระบุชื่อโครงการ"}
           </h3>
 
           <div style="
-            font-size: 12px;
+            font-size: 14px;
             line-height: 1.8;
           ">
             <div>
+              ยุทธศาสตร์ : ${project.strategy || "-"}
+            </div>
+
+            <div>
               ปีงบประมาณ : ${project.year || "-"}
+            </div>
+
+            <div>
+              จังหวัด : ${project.province || "-"}
+            </div>
+
+            <div>
+              อำเภอ : ${project.district || "-"}
+            </div>
+
+            <div>
+              ตำบล : ${project.subdistrict || "-"}
             </div>
 
             <div>
@@ -203,17 +250,6 @@ const ProjectMap = ({ projects }: ProjectMapProps) => {
               ${project.responsibleAgency || "-"}
             </div>
 
-            <div>
-              ตำบล : ${project.subdistrict || "-"}
-            </div>
-
-            <div>
-              อำเภอ : ${project.district || "-"}
-            </div>
-
-            <div>
-              จังหวัด : ${project.province || "-"}
-            </div>
           </div>
         </div>
       `);
@@ -255,9 +291,7 @@ const ProjectMap = ({ projects }: ProjectMapProps) => {
       {/* Layer */}
       <div className="absolute top-[10px] left-3 z-20">
         <button
-          onClick={() =>
-            setShowBasemapMenu(!showBasemapMenu)
-          }
+          onClick={() => setShowBasemapMenu(!showBasemapMenu)}
           className="
             bg-white
             p-2
@@ -267,11 +301,7 @@ const ProjectMap = ({ projects }: ProjectMapProps) => {
             transition
           "
         >
-          <img
-            src={MapLayer}
-            className="w-6 h-6"
-            alt="Layers"
-          />
+          <img src={MapLayer} className="w-6 h-6" alt="Layers" />
         </button>
 
         {showBasemapMenu && (
@@ -293,9 +323,7 @@ const ProjectMap = ({ projects }: ProjectMapProps) => {
                 name="project-basemap"
                 value="Satellite"
                 checked={basemap === "Satellite"}
-                onChange={() =>
-                  changeBasemap("Satellite")
-                }
+                onChange={() => changeBasemap("Satellite")}
               />
 
               <span>ดาวเทียม</span>
@@ -307,9 +335,7 @@ const ProjectMap = ({ projects }: ProjectMapProps) => {
                 name="project-basemap"
                 value="Streets"
                 checked={basemap === "Streets"}
-                onChange={() =>
-                  changeBasemap("Streets")
-                }
+                onChange={() => changeBasemap("Streets")}
               />
 
               <span>ถนน</span>
@@ -322,10 +348,11 @@ const ProjectMap = ({ projects }: ProjectMapProps) => {
       <div
         ref={mapContainer}
         className="
-          w-full
-          h-full
+          w-[800px]
+          h-[400px]
           min-w-0
           rounded-xl
+          shadow-lg
           overflow-hidden
         "
       />

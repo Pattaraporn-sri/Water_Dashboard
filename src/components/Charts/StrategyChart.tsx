@@ -35,11 +35,8 @@ const StrategyChart = ({ projects }: StrategyChartProps) => {
   const strategyNames = Object.keys(strategyCount);
   const values = Object.values(strategyCount);
 
-  const labels = strategyNames.map((strategy) => {
-    const match = strategy.match(/^ยุทธศาสตร์ที่\s*\d+/);
-
-    return match ? match[0] : strategy;
-  });
+  // ใช้ชื่อยุทธศาสตร์เต็ม
+  const labels = strategyNames;
 
   const data = {
     labels,
@@ -54,6 +51,7 @@ const StrategyChart = ({ projects }: StrategyChartProps) => {
           "#16a34a",
           "#FF922B",
         ],
+
         borderColor: "#ffffff",
         borderWidth: 2,
 
@@ -85,10 +83,16 @@ const StrategyChart = ({ projects }: StrategyChartProps) => {
             family: "Kanit",
             size: 14,
           },
+
           padding: 10,
-          // ลดขนาดช่องสี่เหลี่ยมสี
-          boxWidth: 38,
-          boxHeight: 12,
+
+          // สัญลักษณ์เป็นสี่เหลี่ยมมุมมน
+          usePointStyle: true,
+          pointStyle: "rectRounded",
+
+          // ขนาดสัญลักษณ์
+          boxWidth: 14,
+          boxHeight: 14,
         },
       },
 
@@ -112,11 +116,12 @@ const StrategyChart = ({ projects }: StrategyChartProps) => {
         },
       },
     },
-    cutout: "45%",
+
+    cutout: "40%",
   };
 
   return (
-    <div className="w-[430px] h-[200px]">
+    <div className="w-[430px] h-[220px]">
       {projects.length === 0 ? (
         <div className="flex items-center justify-center h-full text-gray-500">
           ไม่มีข้อมูลโครงการ

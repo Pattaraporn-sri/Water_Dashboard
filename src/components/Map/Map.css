@@ -33,3 +33,9 @@
   background: #e0f2fe;
 }
 
+.project-popup .maplibregl-popup-content {
+  width: 500px;
+  min-width: 500px;
+  max-width: 560px;
+  box-sizing: border-box;
+}

@@ -3,9 +3,15 @@ import type { WaterSource } from "../../types/Water";
 
 interface NewFilterBarProps extends FilterBarProps {
   waterData: WaterSource[];
+  showWaterType?: boolean;
 }
 
-function FilterBar({ filter, onFilterChange, waterData }: NewFilterBarProps) {
+function FilterBar({
+  filter,
+  onFilterChange,
+  waterData,
+  showWaterType = true,
+}: NewFilterBarProps) {
   const updateFilter = (
     province: string,
     district: string,
@@ -58,9 +64,6 @@ function FilterBar({ filter, onFilterChange, waterData }: NewFilterBarProps) {
   // -----------------------------
   // ประเภทแหล่งน้ำ
   // -----------------------------
-  // -----------------------------
-  // ประเภทแหล่งน้ำ
-  // -----------------------------
 
   const types = [
     "บ่อน้ำตื้น/บ่อตอก/บ่อวง",
@@ -74,23 +77,13 @@ function FilterBar({ filter, onFilterChange, waterData }: NewFilterBarProps) {
     "ลำห้วย/คลอง/ลำประโดง/ลำธาร/แม่น้ำ/เหมืองดิน",
     "ระบบประปาหมู่บ้าน",
   ];
-  
-  // const types = Array.from(
-  //   new Set(
-  //     waterData
-  //       .filter(
-  //         (item) =>
-  //           (!filter.province || item.province === filter.province) &&
-  //           (!filter.district || item.district === filter.district) &&
-  //           (!filter.subdistrict || item.subdistrict === filter.subdistrict),
-  //       )
-  //       .map((item) => item.type?.trim())
-  //       .filter(Boolean),
-  //   ),
-  // ).sort((a, b) => a.localeCompare(b, "th"));
 
   return (
-    <div className="min-w-0 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 font-kanit bg-gradient-to-r from-[#0077b6] to-[#00b4d8] rounded-xl mx-3 sm:mx-5 -mt-7 mb-5 px-4 py-4 relative z-10">
+    <div
+      className={`min-w-0 grid grid-cols-1 sm:grid-cols-2 ${
+        showWaterType ? "lg:grid-cols-4" : "lg:grid-cols-3"
+      } gap-3 font-kanit bg-gradient-to-r from-[#0077b6] to-[#00b4d8] rounded-xl mx-3 sm:mx-5 -mt-7 mb-5 px-4 py-4 relative z-10`}
+    >
       {/* จังหวัด */}
       <select
         value={filter.province}
@@ -149,28 +142,30 @@ function FilterBar({ filter, onFilterChange, waterData }: NewFilterBarProps) {
       </select>
 
       {/* ประเภทแหล่งน้ำ */}
-      <select
-        value={filter.type}
-        onChange={(e) => {
-          const value = e.target.value;
+      {showWaterType && (
+        <select
+          value={filter.type}
+          onChange={(e) => {
+            const value = e.target.value;
 
-          updateFilter(
-            filter.province,
-            filter.district,
-            filter.subdistrict,
-            value,
-          );
-        }}
-        className="h-8 w-full min-w-0 rounded-lg bg-white p-1 border border-gray-300 focus:border-sky-600 focus:ring-2 focus:ring-blue-200 focus:outline-none"
-      >
-        <option value="">💧 ประเภทแหล่งน้ำทั้งหมด</option>
+            updateFilter(
+              filter.province,
+              filter.district,
+              filter.subdistrict,
+              value,
+            );
+          }}
+          className="h-8 w-full min-w-0 rounded-lg bg-white p-1 border border-gray-300 focus:border-sky-600 focus:ring-2 focus:ring-blue-200 focus:outline-none"
+        >
+          <option value="">💧 ประเภทแหล่งน้ำทั้งหมด</option>
 
-        {types.map((type) => (
-          <option key={type} value={type}>
-            {type}
-          </option>
-        ))}
-      </select>
+          {types.map((type) => (
+            <option key={type} value={type}>
+              {type}
+            </option>
+          ))}
+        </select>
+      )}
     </div>
   );
 }

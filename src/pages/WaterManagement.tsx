@@ -4,9 +4,7 @@ import BudgetYearFilter from "../components/FilterBar/BudgetYearFilter";
 import Header from "../components/Header/Header";
 import type { SelectedFilter } from "../types/Filter";
 import StrategyChart from "../components/Charts/StrategyChart";
-import VillageProjectChart from "../components/Charts/VillageProjectChart";
 import strategy from "../assets/strategy.png";
-import village from "../assets/village.png";
 import projectDetail from "../assets/project.png";
 import ProjectTable from "../components/Table/ProjectTable";
 import { Modal } from "antd";
@@ -160,14 +158,16 @@ const WaterManagement = ({
   return (
     <div className="font-kanit bg-slate-100 w-full min-w-0 overflow-x-hidden">
       <Header filter={filter} />
+      {/* filterBar Global */}
       <FilterBar
         filter={filter}
         onFilterChange={setFilter}
         waterData={waterData}
+        showWaterType={false}
       />
 
       <div className="flex justify-between">
-        <div className="flex gap-2 ml-5 text-2xl">
+        {/* <div className="flex gap-2 ml-5 text-2xl">
           {filter.subdistrict && <p>ตำบล{filter.subdistrict}</p>}
 
           {filter.district && <p>อำเภอ{filter.district}</p>}
@@ -177,6 +177,22 @@ const WaterManagement = ({
           <p className="text-2xl">
             {selectedYear ? `ประจำปีงบประมาณ ${selectedYear}` : "ทุกปีงบประมาณ"}
           </p>
+        </div> */}
+
+        {/* KPI */}
+        <div className="flex gap-3 ml-5">
+          <div className="bg-gradient-to-br from-[#5196bc] to-[#024193] p-5 rounded-lg w-[325px] h-28 shadow-lg text-white">
+            <p className=" text-lg">โครงการทั้งหมด</p>
+            <p className="font-bold text-[26px] flex justify-center">
+              {projectCount} โครงการ
+            </p>
+          </div>
+          <div className="bg-gradient-to-br from-[#5196bc] to-[#024193] p-5 rounded-lg w-[325px] h-28 shadow-lg text-white">
+            <p className="text-lg">งบประมาณ</p>
+            <p className="font-bold text-[26px] flex justify-center">
+              {totalBudget.toLocaleString()} บาท
+            </p>
+          </div>
         </div>
 
         {/* filter ปีงบประมาณ */}
@@ -195,29 +211,13 @@ const WaterManagement = ({
         </div>
       </div>
 
-      {/* KPI */}
-      <div className="flex gap-4 ml-5 mr-5">
-        <div className="bg-gradient-to-br from-[#5196bc] to-[#024193] p-5 mt-4 rounded-lg w-60 shadow-lg text-white">
-          <p className=" text-sm">โครงการทั้งหมด</p>
-          <p className="font-bold text-2xl flex justify-center">
-            {projectCount} โครงการ
-          </p>
-        </div>
-        <div className="bg-gradient-to-br from-[#5196bc] to-[#024193] p-5 mt-4 rounded-lg w-60 shadow-lg text-white">
-          <p className="text-sm">งบประมาณ</p>
-          <p className="font-bold text-2xl flex justify-center">
-            {totalBudget.toLocaleString()} บาท
-          </p>
-        </div>
-      </div>
-
       {/* Chart */}
       <div className="flex gap-4 m-5">
         {/* กราฟยุทธศาสตร์ */}
-        <div className="bg-white rounded-xl p-5 shadow-lg w-[485px] h-[320px]">
+        <div className="bg-white rounded-xl p-5 shadow-lg w-[700px] h-[320px]">
           <div className="flex">
-            <img src={strategy} alt="Strategy" className="w-7 h-7 ml-2" />
-            <p className="font-bold text-xl text-[#023e8a] mb-5 ml-2">
+            <img src={strategy} alt="Strategy" className="w-8 h-8 ml-2" />
+            <p className="font-bold text-2xl text-[#023e8a] mb-5 ml-2">
               ยุทธศาสตร์การบริหารจัดการทรัพยากรน้ำ 5 ด้าน
             </p>
           </div>
@@ -226,7 +226,7 @@ const WaterManagement = ({
         </div>
 
         {/* กราฟแท่งจำนวนโครงการตามหมู่บ้าน */}
-        <div className="bg-white rounded-xl p-5 shadow-lg w-[485px] h-[320px]">
+        {/* <div className="bg-white rounded-xl p-5 shadow-lg w-[485px] h-[320px]">
           <div className="flex">
             <img src={village} alt="Village" className="w-8 h-8 ml-2" />
             <p className="font-bold text-xl text-[#023e8a] ml-2 mb-2">
@@ -235,17 +235,17 @@ const WaterManagement = ({
           </div>
 
           <VillageProjectChart projects={filteredProjects} />
-        </div>
+        </div> */}
 
         {/* แผนที่โครงการ */}
-        <div className="bg-white rounded-xl p-4 shadow-lg w-[485px] h-[320px]">
+        <div>
           <div className="flex items-center mb-3">
-            <p className="font-bold text-xl text-[#023e8a] ml-2">
+            {/* <p className="font-bold text-xl text-[#023e8a] ml-2">
               แผนที่โครงการ
-            </p>
+            </p> */}
           </div>
 
-          <div className="h-[255px]">
+          <div className="-mt-24">
             <ProjectMap projects={projectsWithCoordinates} />
           </div>
         </div>
