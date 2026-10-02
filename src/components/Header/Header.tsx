@@ -17,7 +17,7 @@ function Header({ filter }: HaederProps) {
             className="h-16 w-16 bg-zinc-200 rounded-xl"
           />
           <h1 className="p-4 text-3xl font-bold text-zinc-100">
-            ระบบเก็บข้อมูล
+            ระบบสารสนเทศเพื่อจัดทำแผนน้ำระดับตำบล
           </h1>
         </div>
 

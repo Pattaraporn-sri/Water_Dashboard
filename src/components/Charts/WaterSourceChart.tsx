@@ -1,4 +1,11 @@
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Tooltip, Legend } from "chart.js";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Tooltip,
+  Legend,
+} from "chart.js";
 import { Bar } from "react-chartjs-2";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
@@ -37,18 +44,17 @@ const WaterSourceChart = ({ projects }: WaterSourceChartProps) => {
   const values = Object.values(waterSourceCount);
 
   const colors = [
-  "#023e8a",
-  "#0077b6",
-  "#0096c7",
-  "#00b4d8",
-  "#48cae4",
-  "#90e0ef",
-  "#e9d8a6",
-  "#ee9b00",
-  "#ca6702",
-  "#bb3e03",
-];
-
+    "#023e8a",
+    "#0077b6",
+    "#0096c7",
+    "#00b4d8",
+    "#48cae4",
+    "#90e0ef",
+    "#e9d8a6",
+    "#ee9b00",
+    "#ca6702",
+    "#bb3e03",
+  ];
 
   const data = {
     labels: waterSourceNames,
@@ -67,7 +73,6 @@ const WaterSourceChart = ({ projects }: WaterSourceChartProps) => {
   };
 
   const options = {
-
     responsive: true,
     maintainAspectRatio: false,
 
@@ -148,4 +153,3 @@ const WaterSourceChart = ({ projects }: WaterSourceChartProps) => {
 };
 
 export default WaterSourceChart;
-
