@@ -1,7 +1,9 @@
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+
+import ChartDataLabels from "chartjs-plugin-datalabels";
 import { Doughnut } from "react-chartjs-2";
 
-ChartJS.register(ArcElement, Tooltip, Legend);
+ChartJS.register(ArcElement, Tooltip, Legend, ChartDataLabels);
 
 interface ProjectBank {
   projectName: string;
@@ -18,7 +20,10 @@ interface StrategyChartProps {
 }
 
 const StrategyChart = ({ projects }: StrategyChartProps) => {
-  // นับจำนวนโครงการตามยุทธศาสตร์
+  // =====================================================
+  // 1. นับจำนวนโครงการตามยุทธศาสตร์
+  // =====================================================
+
   const strategyCount = projects.reduce<Record<string, number>>(
     (acc, project) => {
       const strategy = project.strategy?.trim();
@@ -32,69 +37,79 @@ const StrategyChart = ({ projects }: StrategyChartProps) => {
     {},
   );
 
-  const strategyNames = Object.keys(strategyCount);
-  const values = Object.values(strategyCount);
+  // =====================================================
+  // 2. เรียงยุทธศาสตร์ตามเลข
+  //    ยุทธศาสตร์ 1 → 2 → 3 → 4 → 5
+  // =====================================================
 
-  // ใช้ชื่อยุทธศาสตร์เต็ม
-  const labels = strategyNames;
+  const strategyNames = Object.keys(strategyCount).sort((a, b) => {
+    const getNumber = (text: string) => {
+      const match = text.match(/ยุทธศาสตร์.*?(\d+)/);
+
+      return match ? Number(match[1]) : 999;
+    };
+
+    return getNumber(a) - getNumber(b);
+  });
+
+  // จำนวนโครงการตามลำดับยุทธศาสตร์
+  const values = strategyNames.map((strategy) => strategyCount[strategy] || 0);
+
+  // =====================================================
+  // 3. สีของแต่ละยุทธศาสตร์
+  // =====================================================
+
+  const strategyColors = [
+    "#4D96FF", // ยุทธศาสตร์ 1
+    "#dc2626", // ยุทธศาสตร์ 2
+    "#FFD93D", // ยุทธศาสตร์ 3
+    "#16a34a", // ยุทธศาสตร์ 4
+    "#FF922B", // ยุทธศาสตร์ 5
+  ];
+
+  // =====================================================
+  // 4. Doughnut Data
+  // =====================================================
 
   const data = {
-    labels,
+    labels: strategyNames,
+
     datasets: [
       {
         data: values,
 
-        backgroundColor: [
-          "#4D96FF",
-          "#dc2626",
-          "#FFD93D",
-          "#16a34a",
-          "#FF922B",
-        ],
+        backgroundColor: strategyNames.map(
+          (_, index) => strategyColors[index % strategyColors.length],
+        ),
 
         borderColor: "#ffffff",
         borderWidth: 2,
-
-        tooltip: {
-          callbacks: {
-            label: (context: any) => {
-              const index = context.dataIndex;
-              const fullName = strategyNames[index];
-              const value = context.raw || 0;
-
-              return [fullName, `${value} โครงการ`];
-            },
-          },
-        },
       },
     ],
   };
 
+  // =====================================================
+  // 5. Chart Options
+  // =====================================================
+
   const options = {
     responsive: true,
+
     maintainAspectRatio: false,
 
     plugins: {
+      // -------------------------------------------------
+      // ปิด Legend ของ Chart.js
+      // เพราะใช้ Custom Legend เอง
+      // -------------------------------------------------
+
       legend: {
-        position: "right" as const,
-
-        labels: {
-          font: {
-            family: "Kanit",
-            size: 14,
-          },
-
-          padding: 10,
-
-          // สัญลักษณ์เป็นสี่เหลี่ยมมุมมน
-          usePointStyle: true,
-          pointStyle: "rectRounded",
-
-          // ขนาดสัญลักษณ์
-          boxWidth: 14,
-          boxHeight: 14,
-        },
+        display: false,
       },
+
+      // -------------------------------------------------
+      // Tooltip
+      // -------------------------------------------------
 
       tooltip: {
         callbacks: {
@@ -107,12 +122,21 @@ const StrategyChart = ({ projects }: StrategyChartProps) => {
         },
       },
 
+      // -------------------------------------------------
+      // ตัวเลขบน Doughnut
+      // -------------------------------------------------
+
       datalabels: {
-        color: "#fff",
+        color: "#ffffff",
 
         font: {
           family: "Kanit",
-          size: 12,
+          size: 14,
+          weight: "bold" as const,
+        },
+
+        formatter: (value: number) => {
+          return value;
         },
       },
     },
@@ -120,14 +144,61 @@ const StrategyChart = ({ projects }: StrategyChartProps) => {
     cutout: "40%",
   };
 
+  // =====================================================
+  // 6. Render
+  // =====================================================
+
   return (
-    <div className="w-[430px] h-[220px]">
+    <div className="w-[500px] h-[220px]">
       {projects.length === 0 ? (
         <div className="flex items-center justify-center h-full text-gray-500">
           ไม่มีข้อมูลโครงการ
         </div>
       ) : (
-        <Doughnut data={data} options={options} />
+        <div className="flex items-center h-full">
+          {/* =================================================
+              Doughnut
+          ================================================= */}
+
+          <div className="w-[250px] h-[210px] shrink-0">
+            <Doughnut data={data} options={options} />
+          </div>
+
+          {/* =================================================
+              Custom Legend
+          ================================================= */}
+
+          <div className="flex flex-col gap-2 ml-1">
+            {strategyNames.map((strategy, index) => (
+              <div key={strategy} className="flex items-center gap-2">
+                {/* -----------------------------------------
+                    สีของยุทธศาสตร์
+                ----------------------------------------- */}
+
+                <span
+                  className="w-[14px] h-[14px] rounded-[3px] shrink-0"
+                  style={{
+                    backgroundColor:
+                      strategyColors[index % strategyColors.length],
+                  }}
+                />
+
+                {/* -----------------------------------------
+                    ชื่อยุทธศาสตร์
+                ----------------------------------------- */}
+
+                <span
+                  className="text-[14px] leading-tight whitespace-nowrap"
+                  style={{
+                    fontFamily: "Kanit",
+                  }}
+                >
+                  {strategy}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
       )}
     </div>
   );

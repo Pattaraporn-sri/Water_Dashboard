@@ -94,27 +94,26 @@ function KPISection({
   const problemLabels = Object.keys(kpi.problemSummary || {});
   const problemValues = Object.values(kpi.problemSummary || {});
 
-  // useEffect(() => {
-  //   console.log("🎨 KPISection RENDER");
-  //   console.log("📊 waterData:", waterData.length);
-  //   console.log("📊 kpi:", kpi);
+  console.log("📊 STORAGE CHART:", {
+    labels: storageLabels,
+    values: storageValues,
+  });
 
-  //   console.log("💧 storageByType:", kpi.storageByType);
-  //   console.log("💧 storageLabels:", storageLabels);
-  //   console.log("💧 storageValues:", storageValues);
-  //   console.log("💧 totalStorage:", kpi.totalStorage);
+  console.log("📊 PROBLEM CHART:", {
+    labels: problemLabels,
+    values: problemValues,
+  });
 
-  //   console.log("🚨 KPISection problemSummary:", kpi.problemSummary);
-  //   console.log("🚨 problemLabels:", problemLabels);
-  //   console.log("🚨🚨 problemValues:", problemValues);
-  // }, [
-  //   waterData,
-  //   kpi,
-  //   storageLabels,
-  //   storageValues,
-  //   problemLabels,
-  //   problemValues,
-  // ]);
+  // ===========================================
+  console.log("📊 CHART DEBUG", {
+    storageLabels,
+    storageValues,
+    problemLabels,
+    problemValues,
+    storageLength: storageLabels.length,
+    problemLength: problemLabels.length,
+    filter,
+  });
 
   return (
     <div className="font-kanit px-3 sm:px-5 w-full max-w-full overflow-x-hidden">

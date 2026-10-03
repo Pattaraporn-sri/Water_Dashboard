@@ -9,6 +9,23 @@ interface Props {
   setSelectedWater: (water: WaterSource) => void;
 }
 
+// แปลง URL รูปภาพให้สามารถแสดงผลได้
+function getImageUrl(url: string) {
+  if (!url) return "";
+
+  // Google Drive
+  const driveMatch = url.match(/drive\.google\.com\/file\/d\/([^/]+)/);
+
+  if (driveMatch) {
+    const fileId = driveMatch[1];
+
+    return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
+  }
+
+  // Epicollect5 หรือ URL รูปแบบอื่น
+  return url;
+}
+
 export default function PhotoViewer({
   selectedWater,
   waterData,
@@ -17,7 +34,7 @@ export default function PhotoViewer({
   const [open, setOpen] = useState(false);
 
   // รูปของแหล่งน้ำปัจจุบัน
-  const image = selectedWater?.image ?? "";
+  const image = getImageUrl(selectedWater?.image ?? "");
 
   // หา index ของแหล่งน้ำปัจจุบัน
   const currentIndex = waterData.findIndex(
@@ -47,7 +64,6 @@ export default function PhotoViewer({
     <>
       <div className="flex flex-col h-full min-h-0">
         {/* รูปภาพ */}
-
         <div className="relative flex-1 min-h-0 flex items-center justify-center px-10 sm:px-12">
           {/* ปุ่มก่อนหน้า */}
           <button
@@ -67,7 +83,6 @@ export default function PhotoViewer({
                 alt={selectedWater.name}
                 className="rounded-lg cursor-pointer max-h-[180px] sm:max-h-[220px] md:max-h-[200px] w-auto block mx-auto"
                 style={{
-                  // maxHeight: 260,
                   maxWidth: "100%",
                   objectFit: "contain",
                 }}
@@ -89,7 +104,6 @@ export default function PhotoViewer({
         </div>
 
         {/* รายละเอียด */}
-
         {selectedWater && (
           <div className="text-center font-kanit shrink-0">
             <div className="font-semibold text-[#023e8a] text-base sm:text-lg">
@@ -138,7 +152,7 @@ export default function PhotoViewer({
               {selectedWater.image ? (
                 <div className="flex justify-center items-center w-full">
                   <Image
-                    src={selectedWater.image}
+                    src={getImageUrl(selectedWater.image)}
                     preview={false}
                     className="rounded-lg block mx-auto max-h-[45vh] sm:max-h-[55vh] md:max-h-[70vh] w-auto"
                     style={{

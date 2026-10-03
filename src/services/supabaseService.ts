@@ -73,12 +73,22 @@ export async function getWaterSourcesFromSupabase() {
 
 export async function getDashboardDataFromSupabase() {
   try {
-    const [waterData, problemSummaryData, storageSummaryData] =
+    const [waterData, problemSummaryData, storageSummaryData, storageMap] =
       await Promise.all([
         getWaterSourcesFromSupabase(),
+
         getProblemSummaryFromSupabase(),
+
         getStorageSummaryFromSupabase(),
+
+        getWaterStorageByUuid(),
       ]);
+
+    console.log("📊 Dashboard Supabase Summary:", {
+      waterData: waterData.length,
+      problemSummaryData: problemSummaryData.length,
+      storageSummaryData: storageSummaryData.length,
+    });
 
     return {
       success: true,
@@ -114,8 +124,8 @@ export async function getDashboardDataFromSupabase() {
 
         image: item.image,
 
-        volume: item.volume ?? 0,
-
+        volume: storageMap.get(item.ec5_uuid) ?? 0,
+        
         created_at: item.created_at,
         uploaded_at: item.uploaded_at,
       })),
@@ -178,6 +188,12 @@ export async function getProblemSummaryFromSupabase(): Promise<
       )
       .range(from, to);
 
+    console.log("🟠 water_problems query:", {
+      dataLength: data?.length,
+      error,
+      firstRow: data?.[0],
+    });
+
     if (error) {
       console.error("❌ water_problems error:", error);
       throw error;
@@ -236,6 +252,15 @@ export async function getProblemSummaryFromSupabase(): Promise<
     }
   }
 
+  console.log(
+    "🧪 CHECK เมืองขอนแก่น / ในเมือง:",
+    allData.filter(
+      (item) =>
+        String(item.province).includes("ขอนแก่น") &&
+        String(item.district).includes("เมืองขอนแก่น") &&
+        String(item.subdistrict).includes("ในเมือง"),
+    ),
+  );
   return Array.from(summaryMap.values());
 }
 
@@ -262,6 +287,12 @@ export async function getStorageSummaryFromSupabase(): Promise<
       `,
       )
       .range(from, to);
+
+    console.log("🔵 water_storage query:", {
+      dataLength: data?.length,
+      error,
+      firstRow: data?.[0],
+    });
 
     if (error) {
       console.error("❌ water_storage error:", error);
@@ -306,6 +337,16 @@ export async function getStorageSummaryFromSupabase(): Promise<
     summary.total += total;
     summary.count += 1;
   }
+
+  console.log(
+    "🧪 CHECK STORAGE เมืองขอนแก่น / ในเมือง:",
+    allData.filter(
+      (item) =>
+        String(item.province).includes("ขอนแก่น") &&
+        String(item.district).includes("เมืองขอนแก่น") &&
+        String(item.subdistrict).includes("ในเมือง"),
+    ),
+  );
 
   return Array.from(summaryMap.values());
 }
@@ -372,4 +413,58 @@ export async function getProjectBankFromSupabase() {
   );
 
   return allData;
+}
+
+export async function getWaterStorageByUuid(): Promise<Map<string, number>> {
+  const PAGE_SIZE = 1000;
+
+  let allData: any[] = [];
+  let from = 0;
+
+  while (true) {
+    const to = from + PAGE_SIZE - 1;
+
+    const { data, error } = await supabase
+      .from("water_storage")
+      .select(
+        `
+        ec5_uuid,
+        storage_volume
+      `,
+      )
+      .not("ec5_uuid", "is", null)
+      .range(from, to);
+
+    if (error) {
+      throw error;
+    }
+
+    if (!data || data.length === 0) {
+      break;
+    }
+
+    allData = [...allData, ...data];
+
+    if (data.length < PAGE_SIZE) {
+      break;
+    }
+
+    from += PAGE_SIZE;
+  }
+
+  const storageMap = new Map<string, number>();
+
+  for (const item of allData) {
+    const uuid = String(item.ec5_uuid ?? "").trim();
+
+    if (!uuid) {
+      continue;
+    }
+
+    const volume = Number(item.storage_volume ?? 0);
+
+    storageMap.set(uuid, volume);
+  }
+
+  return storageMap;
 }

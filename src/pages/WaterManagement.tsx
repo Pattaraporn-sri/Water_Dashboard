@@ -261,6 +261,7 @@ const WaterManagement = ({
 
       {/* Chart */}
       <div className="flex gap-4 m-5">
+
         {/* กราฟยุทธศาสตร์ */}
         <div className="bg-white rounded-xl p-5 shadow-lg w-[700px] h-[320px]">
           <div className="flex">

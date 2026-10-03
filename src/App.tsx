@@ -47,6 +47,18 @@ function App() {
       try {
         const data = await getDashboardDataFromSupabase();
 
+        console.log("🚨 DATA FROM getDashboardDataFromSupabase:", data);
+
+        console.log(
+          "🟠 problemSummaryData length:",
+          data.problemSummaryData?.length,
+        );
+
+        console.log(
+          "🔵 storageSummaryData length:",
+          data.storageSummaryData?.length,
+        );
+
         if (cancelled) return;
 
         if (!data.success) {
@@ -154,6 +166,14 @@ function App() {
     });
   }, [dashboardData, filter]);
 
+  console.log("🔎 CURRENT FILTER:", filter);
+
+  console.log("🌊 Filtered Water:", filteredWaterData.length);
+
+  console.log("🟠 Filtered Problem:", filteredProblemSummary.length);
+
+  console.log("🔵 Filtered Storage:", filteredStorageSummary.length);
+
   const kpi = useMemo(() => {
     const totalWaterSource = filteredWaterData.length;
 
@@ -188,6 +208,17 @@ function App() {
       problemSummary["น้ำเสีย"] += item["น้ำเสีย"];
     });
 
+    console.log("🔍 FILTER SUMMARY DEBUG", {
+      filter,
+      problemBefore: dashboardData?.problemSummaryData?.length,
+      problemAfter: filteredProblemSummary.length,
+      problemSample: filteredProblemSummary.slice(0, 5),
+
+      storageBefore: dashboardData?.storageSummaryData?.length,
+      storageAfter: filteredStorageSummary.length,
+      storageSample: filteredStorageSummary.slice(0, 5),
+    });
+
     const utilization: Record<string, number> = {};
 
     filteredWaterData.forEach((item) => {
@@ -209,6 +240,16 @@ function App() {
       problemSummary,
     };
   }, [filteredWaterData, filteredProblemSummary, filteredStorageSummary]);
+
+  console.log("📊 FINAL KPI:", kpi);
+  console.log("🟠 Problem Summary:", filteredProblemSummary);
+  console.log("🔵 Storage Summary:", filteredStorageSummary);
+
+  console.log("📊 KPI:", kpi);
+  console.log("🟠 Problem Summary:", kpi.problemSummary);
+  console.log("🔵 Storage By Type:", kpi.storageByType);
+  console.log("📦 Problem Data:", filteredProblemSummary);
+  console.log("💧 Storage Data:", filteredStorageSummary);
 
   // useEffect(() => {
   //   setWaterData(filteredWaterData);
